@@ -1,0 +1,8 @@
+# SERVICIO DE NOTIFICACIONES - PLANTILLA DE CONFIGURACION LOCAL (SIN SECRETOS)
+# Copiar como application.properties y completar con valores locales o variables de entorno
+spring.application.name=notificaciones-service
+server.port=${SERVER_PORT:8081}
+server.address=127.0.0.1
+
+# Credencial de integracion local
+app.notificacion-key=${NOTIFICACIONES_KEY:CAMBIAR_NOTIFICACIONES_KEY}
