@@ -8,6 +8,10 @@ spring.datasource.url=jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAM
 spring.datasource.username=${DB_USER:root}
 spring.datasource.password=${DB_PASSWORD:}
 
+# Actuator: exponer unicamente salud HTTP (/actuator/health)
+management.endpoints.web.exposure.include=health
+management.endpoint.health.show-details=never
+
 # Verificar la estructura sin modificar tablas
 spring.jpa.hibernate.ddl-auto=validate
 spring.jpa.database-platform=org.hibernate.dialect.MariaDBDialect

@@ -9,6 +9,7 @@ import java.util.*;
 // Importa la validación de Bean Validation para validar entrada del cliente.
 import jakarta.validation.Valid;
 
+import org.springframework.beans.factory.annotation.Value;
 // Importa la respuesta HTTP de Spring.
 import org.springframework.http.ResponseEntity;
 
@@ -37,6 +38,9 @@ public class VehiculoController {
     // Cliente para enviar mensajes/notificaciones cuando cambia un vehículo.
     private final NotificacionClient avisos;
 
+    @Value("${server.port:8080}")
+    private String puertoInstancia;
+
     // Constructor con inyección de dependencias de Spring.
     public VehiculoController(
             VehiculoService service,
@@ -44,6 +48,16 @@ public class VehiculoController {
 
         this.service = service;
         this.avisos = avisos;
+    }
+
+    // Identifica qué instancia (8080 o 8082) atendió la solicitud detrás de NGINX.
+    @GetMapping("/instancia")
+    public Map<String, Object> obtenerInstancia() {
+        return Map.of(
+                "servicio", "venta-vehiculos-api",
+                "instancia", "API-" + puertoInstancia,
+                "puerto", Integer.parseInt(puertoInstancia)
+        );
     }
 
     // Obtiene la lista de vehículos opcionalmente filtrada por marca.
