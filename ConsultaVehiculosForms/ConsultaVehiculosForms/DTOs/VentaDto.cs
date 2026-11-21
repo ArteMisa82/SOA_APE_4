@@ -2,15 +2,10 @@ using System.Text.Json.Serialization;
 
 namespace ConsultaVehiculosForms.DTOs
 {
-    public class CrearVentaDto
-    {
-        [JsonPropertyName("vehiculoId")]
-        public int VehiculoId { get; set; }
-
-        [JsonPropertyName("compradorId")]
-        public int CompradorId { get; set; }
-    }
-
+    /// <summary>
+    /// DTO de solo lectura para consultar ventas registradas desde FastAPI (GET /api/ventas).
+    /// Windows Forms no registra ventas (exclusivo de la PWA móvil).
+    /// </summary>
     public class VentaDto
     {
         [JsonPropertyName("id")]
@@ -29,7 +24,7 @@ namespace ConsultaVehiculosForms.DTOs
         public string? PrecioAcordado { get; set; }
 
         [JsonPropertyName("moneda")]
-        public string Moneda { get; set; } = "USD";
+        public string? Moneda { get; set; }
 
         [JsonPropertyName("estado")]
         public string Estado { get; set; } = string.Empty;

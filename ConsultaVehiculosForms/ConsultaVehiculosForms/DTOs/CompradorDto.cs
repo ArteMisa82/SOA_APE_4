@@ -7,6 +7,9 @@ namespace ConsultaVehiculosForms.DTOs
         [JsonPropertyName("id")]
         public int Id { get; set; }
 
+        [JsonPropertyName("usuario")]
+        public string? Usuario { get; set; }
+
         [JsonPropertyName("documento")]
         public string? Documento { get; set; }
 
