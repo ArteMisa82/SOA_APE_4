@@ -2,11 +2,12 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Header, Response
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 
 from app.db import SessionLocal
 from app.models import Venta, Comprador
-from app.schemas import CrearVenta, CrearComprador, CompradorResponse
-from app.security import identidad, vendedor, propietario
+from app.schemas import CrearVenta, CrearComprador, CompradorResponse, VentaResponse
+from app.security import identidad, vendedor, lectura 
 from app.errors import ApiError
 from app.services import venta_service as service
 
@@ -15,10 +16,14 @@ router = APIRouter(prefix="/api")
 @router.post("/compradores", status_code=201)
 def crear_comprador(d: CrearComprador, u=Depends(identidad)):
     vendedor(u)
-    with SessionLocal.begin() as db:
-        c = Comprador(usuario=u["usuario"], **d.model_dump())
-        db.add(c); db.flush()
-        return {"id": c.id, "nombre": c.nombre, "correo": c.correo}
+    try:
+        with SessionLocal.begin() as db:
+            c = Comprador(usuario=u["usuario"], **d.model_dump())
+            db.add(c)
+            db.flush()
+            return {"id": c.id, "usuario": c.usuario, "documento": c.documento, "nombre": c.nombre, "correo": c.correo}
+    except IntegrityError:
+        raise ApiError(409, "COMPRADOR_DUPLICADO", "Ya existe un comprador con ese documento")
 
 # ==============================================================================
 # ENDPOINT: GET /api/compradores
@@ -38,7 +43,7 @@ def listar_compradores(u=Depends(identidad)):
     # Verificación de roles autorizados para consultar
     roles_usuario = set(u.get("roles", []))
     if not {"ROLE_CONSULTA", "ROLE_OPERADOR", "ROLE_ADMIN"}.intersection(roles_usuario):
-        vendedor(u)  # Lanza ApiError(403, "SIN_PERMISO", "Se requiere OPERADOR o ADMIN")
+        lectura(u)  # Lanza ApiError(403, "SIN_PERMISO", "Se requiere CONSULTA, OPERADOR o ADMIN")
 
     # Consulta a la base de datos MySQL usando la sesión de SQLAlchemy
     with SessionLocal() as db:
@@ -67,11 +72,19 @@ def crear(d: CrearVenta, response: Response,
     response.headers["Location"] = f"/api/ventas/{resultado['id']}"
     return resultado
 
+@router.get("/ventas", response_model=list[VentaResponse])
+def listar_ventas(u=Depends(identidad)):
+    lectura(u)
+    with SessionLocal() as db:
+        stmt = select(Venta).order_by(Venta.id.desc())
+        ventas = db.scalars(stmt).all()
+        return [service.salida(v) for v in ventas]
+
 @router.get("/ventas/{id}")
 def obtener(id: int, u=Depends(identidad)):
+    lectura(u)
     with SessionLocal() as db:
         v = db.get(Venta, id)
         if v is None:
             raise ApiError(404, "VENTA_NO_EXISTE", "Venta inexistente")
-        propietario(u, v.usuario)
         return service.salida(v)

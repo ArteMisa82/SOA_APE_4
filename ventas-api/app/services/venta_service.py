@@ -18,7 +18,7 @@ from app.clients.vehiculos_client import VehiculosClient, FalloRemoto
 
 from app.config import NOTIF_URL, NOTIF_KEY
 from app.errors import ApiError
-from app.security import propietario
+#from app.security import propietario
 
 remote = VehiculosClient()
 
@@ -62,7 +62,7 @@ def crear(datos, clave, usuario):
 
                 raise ApiError(404, "COMPRADOR_NO_EXISTE", "Comprador inexistente")
 
-            propietario(usuario, comprador.usuario)
+            #propietario(usuario, comprador.usuario)
 
             v = Venta(operacion_id=str(uuid4()), usuario=usuario["usuario"],
 

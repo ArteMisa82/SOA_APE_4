@@ -66,3 +66,7 @@ def propietario(usuario, dueno):
     if usuario["usuario"] != dueno and "ROLE_ADMIN" not in usuario["roles"]:
 
         raise ApiError(403, "SIN_PERMISO", "Recurso de otro usuario")
+
+def lectura(usuario):
+    if not {"ROLE_CONSULTA", "ROLE_OPERADOR","ROLE_ADMIN"}.intersection(usuario["roles"]):
+        raise ApiError(403, "SIN_PERMISO", "Se requiere CONSULTA, OPERADOR o ADMIN")    

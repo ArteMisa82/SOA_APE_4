@@ -20,3 +20,14 @@ class CrearVenta(BaseModel):
     vehiculoId: int = Field(gt=0, strict=True)
     compradorId: int = Field(gt=0, strict=True)
 
+class VentaResponse(BaseModel):
+    id: int
+    operacionId: str
+    vehiculoId: int
+    compradorId: int
+    precioAcordado: str | None = None
+    moneda: str | None = None
+    estado: str
+    notificacion: str
+    fechaUTC: str
+
