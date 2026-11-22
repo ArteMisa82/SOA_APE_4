@@ -158,10 +158,7 @@ export async function registrarVenta(
 ) {
   const jwt = normalizarToken(entradaToken);
   const clave = String(idempotencyKey || '').trim();
-  const encabezados = new Headers({
-    Accept: 'application/json',
-    'Content-Type': 'application/json',
-  });
+  const encabezados = new Headers({Accept: 'application/json','Content-Type': 'application/json',});
   if (jwt) encabezados.set('Authorization', `Bearer ${jwt}`);
   if (clave) encabezados.set('Idempotency-Key', clave);
 
