@@ -1,7 +1,7 @@
 {
-  "name": "Consulta de Vehículos - Móvil",
-  "short_name": "Vehículos",
-  "description": "PWA móvil para consultar vehículos de una API REST protegida con JWT.",
+  "name": "Ventas de Vehículos - PWA Móvil",
+  "short_name": "Ventas PWA",
+  "description": "PWA móvil con login JWT y registro exclusivo de ventas de vehículos.",
   "id": "/",
   "start_url": "/",
   "scope": "/",

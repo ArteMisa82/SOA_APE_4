@@ -4,11 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#103b56" />
-    <meta name="description" content="Consulta móvil de vehículos a través de una API REST con autenticación JWT." />
+    <meta name="description" content="PWA móvil con autenticación JWT y registro exclusivo de ventas de vehículos." />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <title>Vehículos Móvil · PWA</title>
+    <title>Ventas Móvil · PWA</title>
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
     <link rel="apple-touch-icon" href="/icons/icon-192.png" />
@@ -20,45 +20,115 @@
       <header class="encabezado">
         <div class="logo" aria-hidden="true">🚙</div>
         <div>
-          <p class="eyebrow">APLICACIÓN MÓVIL · PWA</p>
-          <h1>Consulta de vehículos</h1>
-          <p class="subtitulo">Cliente de la API Java Spring Boot</p>
+          <p class="eyebrow">APLICACIÓN MÓVIL · PWA EXCLUSIVA DE VENTAS</p>
+          <h1>Ventas de vehículos</h1>
+          <p class="subtitulo">Autenticación JWT y registro de ventas vía NGINX (:8090)</p>
         </div>
       </header>
 
       <main>
-        <section class="panel" aria-labelledby="titulo-acceso">
-          <div class="seccion-cabecera">
-            <span class="paso">01</span>
-            <h2 id="titulo-acceso">Acceso con JWT</h2>
+        <!-- PASO 01: LOGIN REAL (/oauth/token) -->
+        <section class="panel" aria-labelledby="titulo-login">
+          <div class="seccion-cabecera resultados">
+            <div class="titulo-bloque">
+              <span class="paso">01</span>
+              <h2 id="titulo-login">Inicio de sesión (JWT)</h2>
+            </div>
+            <span id="badgeSesion" class="contador">Sin sesión</span>
           </div>
-          <p class="ayuda">Se utiliza un token obtenido mediante el servicio de autenticación.</p>
-          <form id="formulario" novalidate>
-            <label for="jwt">Token de usuario</label>
-            <div class="fila-token">
-              <input id="jwt" type="password" placeholder="Pegar JWT de Postman" autocapitalize="none" autocomplete="off" spellcheck="false" />
-              <button id="alternarToken" type="button" class="boton-secundario" aria-label="Mostrar token" aria-pressed="false">Mostrar</button>
+          <p class="ayuda">Ingrese sus credenciales reales para emitir un JWT vía POST /oauth/token a través de NGINX.</p>
+          <form id="formLogin" novalidate>
+            <div class="grid-form">
+              <div>
+                <label for="usuario">Usuario</label>
+                <input id="usuario" type="text" placeholder="Ej. operador01" autocomplete="username" autocapitalize="none" spellcheck="false" required />
+              </div>
+              <div>
+                <label for="password">Contraseña</label>
+                <input id="password" type="password" placeholder="Contraseña" autocomplete="current-password" required />
+              </div>
             </div>
             <div class="acciones">
-              <button id="consultar" class="boton-primario" type="submit">Consultar vehículos</button>
-              <button id="borrar" class="boton-discreto" type="button">Borrar token</button>
+              <button id="btnLogin" class="boton-primario" type="submit">Iniciar sesión</button>
+              <button id="btnLogout" class="boton-discreto" type="button" disabled>Cerrar sesión</button>
+              <button id="btnJwtInvalido" class="boton-alerta" type="button">Probar JWT inválido (401)</button>
             </div>
           </form>
-          <div id="mensaje" class="mensaje neutro" role="status" aria-live="polite">Listo para consultar.</div>
-          <p class="seguridad">El token permanece en memoria; no se almacena en el dispositivo.</p>
+          <div id="mensajeLogin" class="mensaje neutro" role="status" aria-live="polite">Ingrese usuario y contraseña para iniciar sesión.</div>
+          <p class="seguridad">El JWT se conserva únicamente en memoria de la sesión actual; no se guarda en el dispositivo ni se muestra en pantalla.</p>
         </section>
 
+        <!-- PASO 02: REGISTRO EXCLUSIVO DE VENTA (POST /api/ventas) -->
+        <section class="panel" aria-labelledby="titulo-venta">
+          <div class="seccion-cabecera resultados">
+            <div class="titulo-bloque">
+              <span class="paso">02</span>
+              <h2 id="titulo-venta">Registrar venta (POST /api/ventas)</h2>
+            </div>
+            <button id="btnRecargar" type="button" class="boton-secundario boton-mini">Recargar datos</button>
+          </div>
+          <p class="ayuda">Seleccione un vehículo disponible y un comprador válido. La cabecera <strong>Idempotency-Key</strong> evita ventas duplicadas en reintentos.</p>
+          <form id="formVenta" novalidate>
+            <div class="campo">
+              <label for="selectVehiculo">Vehículo</label>
+              <select id="selectVehiculo" required>
+                <option value="">— Inicie sesión para cargar vehículos —</option>
+              </select>
+            </div>
+            <div class="campo">
+              <label for="selectComprador">Comprador</label>
+              <select id="selectComprador" required>
+                <option value="">— Inicie sesión para cargar compradores —</option>
+              </select>
+            </div>
+            <div class="campo">
+              <label for="idempotencyKey">Idempotency-Key (8–100 caracteres)</label>
+              <div class="fila-token">
+                <input id="idempotencyKey" type="text" placeholder="pwa-xxxx" autocomplete="off" spellcheck="false" required />
+                <button id="btnNuevaClave" type="button" class="boton-secundario">Nueva clave</button>
+              </div>
+            </div>
+            <div class="acciones">
+              <button id="btnRegistrarVenta" class="boton-primario" type="submit">Registrar venta</button>
+            </div>
+          </form>
+          <div id="mensajeVenta" class="mensaje neutro" role="status" aria-live="polite">Esperando datos para registrar venta.</div>
+          <div id="resultadoVenta" class="tarjeta-venta oculto" aria-live="polite"></div>
+        </section>
+
+        <!-- PASO 03: CONSULTA POSTERIOR DE VENTA (GET /api/ventas/{id}) -->
+        <section class="panel" aria-labelledby="titulo-consulta-venta">
+          <div class="seccion-cabecera">
+            <span class="paso">03</span>
+            <h2 id="titulo-consulta-venta">Consultar estado de venta (GET /api/ventas/{id})</h2>
+          </div>
+          <p class="ayuda">Verifique el estado real de una venta registrada, especialmente ante respuestas inciertas o reintentos.</p>
+          <form id="formConsultaVenta" novalidate>
+            <label for="consultaVentaId">ID de venta</label>
+            <div class="fila-token">
+              <input id="consultaVentaId" type="number" min="1" step="1" placeholder="Ej. 18" />
+              <button id="btnConsultarVenta" class="boton-primario" type="submit">Consultar estado</button>
+            </div>
+          </form>
+          <div id="mensajeConsulta" class="mensaje neutro" role="status" aria-live="polite">Ingrese un ID de venta para consultar.</div>
+          <div id="detalleConsulta" class="tarjeta-venta oculto" aria-live="polite"></div>
+        </section>
+
+        <!-- PASO 04: CATALOGO DE VEHICULOS -->
         <section class="panel listado" aria-labelledby="titulo-vehiculos">
           <div class="seccion-cabecera resultados">
-            <div class="titulo-bloque"><span class="paso">02</span><h2 id="titulo-vehiculos">Vehículos registrados</h2></div>
+            <div class="titulo-bloque">
+              <span class="paso">04</span>
+              <h2 id="titulo-vehiculos">Catálogo de vehículos</h2>
+            </div>
             <span id="contador" class="contador">0 vehículos</span>
           </div>
           <div id="vehiculos" class="vehiculos">
-            <div class="vacio">No hay información todavía. Se debe realizar una consulta para mostrar vehículos.</div>
+            <div class="vacio">Inicie sesión en el paso 01 para consultar los vehículos reales desde la API.</div>
           </div>
         </section>
       </main>
-      <footer><span id="conexion">Comprobando conexión…</span> · Datos proporcionados por la API REST</footer>
+      <footer><span id="conexion">Comprobando conexión…</span> · PWA APE 04 · Servicios REST vía NGINX (:8090)</footer>
     </div>
   </body>
 </html>
