@@ -6,3 +6,13 @@ server.address=127.0.0.1
 
 # Credencial de integracion local
 app.notificacion-key=${NOTIFICACIONES_KEY:CAMBIAR_NOTIFICACIONES_KEY}
+
+# RabbitMQ (consumidor durable de eventos de venta)
+spring.rabbitmq.host=${RABBITMQ_HOST:127.0.0.1}
+spring.rabbitmq.port=${RABBITMQ_PORT:5672}
+spring.rabbitmq.username=${RABBITMQ_USER:CAMBIAR_USUARIO_RABBITMQ}
+spring.rabbitmq.password=${RABBITMQ_PASS:CAMBIAR_CLAVE_RABBITMQ}
+app.rabbitmq.queue=${RABBITMQ_QUEUE:notificaciones.ventas}
+
+# Historial recuperable local en disco
+app.notificaciones.archivo-historial=data/notificaciones-ventas.jsonl

@@ -26,6 +26,12 @@ public class NotificacionKeyFilter extends OncePerRequestFilter {
     }
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        return "GET".equalsIgnoreCase(request.getMethod())
+                && request.getRequestURI().startsWith("/api/notificaciones");
+    }
+
+    @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
             throws IOException, ServletException {
         String providedKey = req.getHeader("X-Notificacion-Key");
