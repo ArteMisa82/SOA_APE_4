@@ -6,8 +6,6 @@ from uuid import uuid4
 
 from decimal import Decimal
 
-import httpx
-
 from sqlalchemy.exc import IntegrityError
 
 from app.db import SessionLocal
@@ -15,12 +13,12 @@ from app.models import Venta, Comprador
 
 from app.repositories.venta_repository import VentaRepository
 from app.clients.vehiculos_client import VehiculosClient, FalloRemoto
+from app.messaging.rabbit_publisher import RabbitEventPublisher, construir_evento_venta
 
-from app.config import NOTIF_URL, NOTIF_KEY
 from app.errors import ApiError
-#from app.security import propietario
 
 remote = VehiculosClient()
+publisher = RabbitEventPublisher()
 
 def salida(v):
 
@@ -192,25 +190,14 @@ def notificar(id):
 
         v = VentaRepository(db).bloquear(id)
 
+        # Solo se publica evento tras venta COMPLETADA y nunca si ya fue ENVIADA
+        # (evita eventos en ventas rechazadas y evita duplicar al reutilizar Idempotency-Key).
         if v is None or v.estado != "COMPLETADA" or v.notificacion == "ENVIADA":
 
             return
 
-        try:
+        evento = construir_evento_venta(v)
 
-            r = httpx.post(NOTIF_URL + "/api/notificaciones", timeout=3,
+        publicado = publisher.publicar_venta_confirmada(evento)
 
-                headers={"X-Notification-Key": NOTIF_KEY, "X-Notificacion-Key": NOTIF_KEY}, json={
-
-                    "vehiculoId": v.vehiculo_id, "tipo": "VENTA",
-
-                    "destinatario": v.comprador.correo,
-
-                    "mensaje": f"Venta {v.id} operación {v.operacion_id} completada",
-                })
-
-            v.notificacion = "ENVIADA" if 200 <= r.status_code < 300 else "PENDIENTE"
-
-        except httpx.RequestError:
-
-            v.notificacion = "PENDIENTE"
+        v.notificacion = "ENVIADA" if publicado else "PENDIENTE"

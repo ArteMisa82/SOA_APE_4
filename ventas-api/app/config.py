@@ -15,6 +15,13 @@ SERVICE_KEY = requerido("VENTAS_SERVICE_KEY")
 NOTIF_URL = requerido("NOTIFICACIONES_URL").rstrip("/")
 NOTIF_KEY = requerido("NOTIFICACIONES_KEY")
 
+# Configuración de RabbitMQ (Actividad 8)
+RABBITMQ_HOST = os.environ.get("RABBITMQ_HOST", "127.0.0.1")
+RABBITMQ_PORT = int(os.environ.get("RABBITMQ_PORT", "5672"))
+RABBITMQ_USER = os.environ.get("RABBITMQ_USER", "guest")
+RABBITMQ_PASS = os.environ.get("RABBITMQ_PASS", "guest")
+RABBITMQ_QUEUE = os.environ.get("RABBITMQ_QUEUE", "notificaciones.ventas")
+
 if min(len(SERVICE_KEY), len(NOTIF_KEY)) < 32:
     raise RuntimeError("Claves de servicio de al menos 32 caracteres")
 
