@@ -17,33 +17,70 @@
 
         private void InitializeComponent()
         {
-            pnlHeader = new Panel();
-            lblTitulo = new Label();
-            lblSubtitulo = new Label();
-
-            grpAuth = new GroupBox();
-            lblGateway = new Label();
-            txtGateway = new TextBox();
+            // ==================== PANTALLA 1: LOGIN OSCURO NEXORA ====================
+            pnlLoginScreen = new Panel();
+            pnlLoginLeft = new Panel();
+            pnlLoginCard = new Panel();
+            picLoginLogo = new PictureBox();
+            lblLoginTitle = new Label();
+            lblLoginSub = new Label();
             lblUsuario = new Label();
             txtUsuario = new TextBox();
             lblPassword = new Label();
             txtPassword = new TextBox();
+            chkMostrarPass = new CheckBox();
+            lblGateway = new Label();
+            txtGateway = new TextBox();
             lblClientSecret = new Label();
             txtClientSecret = new TextBox();
+            lblLoginError = new Label();
             btnIniciarSesion = new Button();
-            btnCerrarSesion = new Button();
-            btnTokenInvalido = new Button();
+            btnTokenInvalidoLogin = new Button();
+            lblLoginFooter = new Label();
+
+            pnlLoginRight = new CoverImagePanel();
+            lblVisualTag = new Label();
+            lblVisualCaption = new Label();
+
+            // ==================== PANTALLA 2: WORKSPACE ADMINISTRATIVO ====================
+            pnlAppWorkspace = new Panel();
+            pnlSidebar = new Panel();
+            pnlBrand = new Panel();
+            picSidebarLogo = new PictureBox();
+            lblBrandPill = new Label();
+            lblNavTitle = new Label();
+
+            pnlNavVehiculos = new Panel();
+            pnlIndVehiculos = new Panel();
+            btnNavVehiculos = new Button();
+
+            pnlNavCompradores = new Panel();
+            pnlIndCompradores = new Panel();
+            btnNavCompradores = new Button();
+
+            pnlNavVentas = new Panel();
+            pnlIndVentas = new Panel();
+            btnNavVentas = new Button();
+
+            pnlSidebarFooter = new Panel();
             lblSesion = new Label();
+            btnTokenInvalido = new Button();
+            btnCerrarSesion = new Button();
+            lblSidebarNota = new Label();
 
-            pnlEstado = new Panel();
-            lblEstado = new Label();
-            prgCarga = new ProgressBar();
+            pnlRightArea = new Panel();
+            pnlTopbar = new Panel();
+            lblTopTitle = new Label();
+            lblTopSub = new Label();
+            lblTopBadge = new Label();
+            lblTopKpi = new Label();
 
-            tabPrincipal = new TabControl();
+            pnlContentHost = new Panel();
 
-            // Tab 1: Vehiculos
-            tabVehiculos = new TabPage();
-            grpCrearVehiculo = new GroupBox();
+            // Módulo 1: Vehículos
+            pnlModVehiculos = new Panel();
+            pnlFormVehiculo = new Panel();
+            lblFormVehTitle = new Label();
             lblMarca = new Label();
             txtMarca = new TextBox();
             lblModelo = new Label();
@@ -61,11 +98,13 @@
             btnCrearVehiculo = new Button();
             btnListarVehiculos = new Button();
             btnLimpiarVehiculos = new Button();
+            pnlGridVehWrap = new Panel();
             dgvVehiculos = new DataGridView();
 
-            // Tab 2: Compradores
-            tabCompradores = new TabPage();
-            grpCrearComprador = new GroupBox();
+            // Módulo 2: Compradores
+            pnlModCompradores = new Panel();
+            pnlFormComprador = new Panel();
+            lblFormCompTitle = new Label();
             lblDocumento = new Label();
             txtDocumento = new TextBox();
             lblNombreComp = new Label();
@@ -75,438 +114,697 @@
             btnCrearComprador = new Button();
             btnListarCompradores = new Button();
             btnLimpiarCompradores = new Button();
+            pnlGridCompWrap = new Panel();
             dgvCompradores = new DataGridView();
 
-            // Tab 3: Ventas (Solo lectura)
-            tabVentas = new TabPage();
-            pnlVentasTop = new Panel();
+            // Módulo 3: Ventas (Solo lectura)
+            pnlModVentas = new Panel();
+            pnlVentasBar = new Panel();
             lblAvisoVentas = new Label();
             btnListarVentas = new Button();
             btnLimpiarVentas = new Button();
+            pnlGridVenWrap = new Panel();
             dgvVentas = new DataGridView();
 
-            pnlHeader.SuspendLayout();
-            grpAuth.SuspendLayout();
-            pnlEstado.SuspendLayout();
-            tabPrincipal.SuspendLayout();
-            tabVehiculos.SuspendLayout();
-            grpCrearVehiculo.SuspendLayout();
+            // Barra inferior de estado
+            pnlEstado = new Panel();
+            lblEstado = new Label();
+            prgCarga = new ProgressBar();
+
+            ((System.ComponentModel.ISupportInitialize)picLoginLogo).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)picSidebarLogo).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numAnio).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numPrecio).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dgvVehiculos).BeginInit();
-            tabCompradores.SuspendLayout();
-            grpCrearComprador.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgvCompradores).BeginInit();
-            tabVentas.SuspendLayout();
-            pnlVentasTop.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgvVentas).BeginInit();
             SuspendLayout();
 
-            // ================ HEADER ================
-            pnlHeader.BackColor = Color.FromArgb(24, 43, 73);
-            pnlHeader.Dock = DockStyle.Top;
-            pnlHeader.Height = 62;
-            pnlHeader.Controls.Add(lblTitulo);
-            pnlHeader.Controls.Add(lblSubtitulo);
+            // ================ PANTALLA 1: LOGIN OSCURO (IZQ: LOGO + DATOS · DER: IMAGEN) ================
+            pnlLoginScreen.Dock = DockStyle.Fill;
+            pnlLoginScreen.BackColor = Theme.Graphite920;
 
-            lblTitulo.AutoSize = true;
-            lblTitulo.Font = new Font("Segoe UI", 12.5F, FontStyle.Bold);
-            lblTitulo.ForeColor = Color.White;
-            lblTitulo.Location = new Point(16, 8);
-            lblTitulo.Text = "Administración de Vehículos, Compradores y Consulta de Ventas";
+            pnlLoginLeft.Dock = DockStyle.Left;
+            pnlLoginLeft.Width = 500;
+            pnlLoginLeft.BackColor = Theme.Graphite920;
 
-            lblSubtitulo.AutoSize = true;
-            lblSubtitulo.Font = new Font("Segoe UI", 8.8F, FontStyle.Regular);
-            lblSubtitulo.ForeColor = Color.FromArgb(205, 220, 240);
-            lblSubtitulo.Location = new Point(16, 35);
-            lblSubtitulo.Text = "Cliente Windows Forms (.NET) · Puerta única NGINX (:8090) · Autenticación JWT · Sin registro de ventas";
+            pnlLoginCard.Size = new Size(390, 620);
+            pnlLoginCard.Location = new Point(55, 36);
+            pnlLoginCard.BackColor = Theme.Graphite920;
 
-            // ================ AUTH PANEL ================
-            grpAuth.Dock = DockStyle.Top;
-            grpAuth.Height = 112;
-            grpAuth.Padding = new Padding(10);
-            grpAuth.Text = "Autenticación JWT (POST /oauth/token vía NGINX :8090 — el token se conserva solo en memoria)";
+            picLoginLogo.Size = new Size(250, 108);
+            picLoginLogo.Location = new Point(70, 0);
+            picLoginLogo.SizeMode = PictureBoxSizeMode.Zoom;
+            picLoginLogo.BackColor = Color.Transparent;
 
-            lblGateway.AutoSize = true;
-            lblGateway.Location = new Point(14, 28);
-            lblGateway.Text = "Gateway NGINX:";
+            lblLoginTitle.AutoSize = true;
+            lblLoginTitle.Font = Theme.FontLoginTitle;
+            lblLoginTitle.ForeColor = Color.White;
+            lblLoginTitle.Location = new Point(0, 118);
+            lblLoginTitle.Text = "Iniciar sesión";
 
-            txtGateway.Location = new Point(122, 24);
-            txtGateway.Size = new Size(190, 24);
-            txtGateway.Text = "http://127.0.0.1:8090";
+            lblLoginSub.AutoSize = false;
+            lblLoginSub.Size = new Size(390, 36);
+            lblLoginSub.Font = Theme.FontSmall;
+            lblLoginSub.ForeColor = Theme.TextOnDarkMuted;
+            lblLoginSub.Location = new Point(0, 154);
+            lblLoginSub.Text = "Panel administrativo Windows Forms · Gestión de vehículos, compradores y consulta de ventas.";
 
             lblUsuario.AutoSize = true;
-            lblUsuario.Location = new Point(328, 28);
-            lblUsuario.Text = "Usuario:";
-
-            txtUsuario.Location = new Point(388, 24);
-            txtUsuario.Size = new Size(140, 24);
-            txtUsuario.PlaceholderText = "admin01 / operador01";
+            lblUsuario.Font = Theme.FontSmallBold;
+            lblUsuario.ForeColor = Color.FromArgb(203, 213, 225);
+            lblUsuario.Location = new Point(0, 200);
+            lblUsuario.Text = "Usuario";
+            txtUsuario.Location = new Point(0, 220);
+            txtUsuario.Size = new Size(390, 28);
+            txtUsuario.PlaceholderText = "Ej. admin01 / operador01";
+            Theme.StyleDarkInput(txtUsuario);
 
             lblPassword.AutoSize = true;
-            lblPassword.Location = new Point(542, 28);
-            lblPassword.Text = "Contraseña:";
-
-            txtPassword.Location = new Point(622, 24);
-            txtPassword.Size = new Size(140, 24);
+            lblPassword.Font = Theme.FontSmallBold;
+            lblPassword.ForeColor = Color.FromArgb(203, 213, 225);
+            lblPassword.Location = new Point(0, 258);
+            lblPassword.Text = "Contraseña";
+            txtPassword.Location = new Point(0, 278);
+            txtPassword.Size = new Size(390, 28);
             txtPassword.UseSystemPasswordChar = true;
+            txtPassword.PlaceholderText = "Ingrese su contraseña";
+            Theme.StyleDarkInput(txtPassword);
+
+            chkMostrarPass.AutoSize = true;
+            chkMostrarPass.ForeColor = Theme.TextOnDarkMuted;
+            chkMostrarPass.Font = Theme.FontSmall;
+            chkMostrarPass.Location = new Point(0, 310);
+            chkMostrarPass.Text = "Mostrar contraseña";
+
+            lblGateway.AutoSize = true;
+            lblGateway.Font = Theme.FontSmallBold;
+            lblGateway.ForeColor = Color.FromArgb(203, 213, 225);
+            lblGateway.Location = new Point(0, 340);
+            lblGateway.Text = "Gateway NGINX";
+            txtGateway.Location = new Point(0, 360);
+            txtGateway.Size = new Size(188, 28);
+            txtGateway.Text = "http://127.0.0.1:8090";
+            Theme.StyleDarkInput(txtGateway);
 
             lblClientSecret.AutoSize = true;
-            lblClientSecret.Location = new Point(776, 28);
-            lblClientSecret.Text = "Client Secret:";
-
-            txtClientSecret.Location = new Point(866, 24);
-            txtClientSecret.Size = new Size(190, 24);
+            lblClientSecret.Font = Theme.FontSmallBold;
+            lblClientSecret.ForeColor = Color.FromArgb(203, 213, 225);
+            lblClientSecret.Location = new Point(202, 340);
+            lblClientSecret.Text = "Client Secret (o env)";
+            txtClientSecret.Location = new Point(202, 360);
+            txtClientSecret.Size = new Size(188, 28);
             txtClientSecret.UseSystemPasswordChar = true;
-            txtClientSecret.PlaceholderText = "(o env APE04_OAUTH_CLIENT_SECRET)";
+            txtClientSecret.PlaceholderText = "Opcional si usa env";
+            Theme.StyleDarkInput(txtClientSecret);
 
-            btnIniciarSesion.BackColor = Color.FromArgb(25, 135, 84);
-            btnIniciarSesion.FlatStyle = FlatStyle.Flat;
-            btnIniciarSesion.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            btnIniciarSesion.ForeColor = Color.White;
-            btnIniciarSesion.Location = new Point(14, 62);
-            btnIniciarSesion.Size = new Size(145, 32);
-            btnIniciarSesion.Text = "Iniciar Sesión (JWT)";
-            btnIniciarSesion.UseVisualStyleBackColor = false;
+            lblLoginError.AutoSize = false;
+            lblLoginError.Size = new Size(390, 42);
+            lblLoginError.Location = new Point(0, 398);
+            lblLoginError.Font = Theme.FontSmallBold;
+            lblLoginError.ForeColor = Color.FromArgb(254, 202, 202);
+            lblLoginError.BackColor = Color.FromArgb(52, 22, 26);
+            lblLoginError.Padding = new Padding(10, 6, 10, 6);
+            lblLoginError.Visible = false;
 
-            btnCerrarSesion.BackColor = Color.FromArgb(108, 117, 125);
-            btnCerrarSesion.FlatStyle = FlatStyle.Flat;
-            btnCerrarSesion.ForeColor = Color.White;
-            btnCerrarSesion.Location = new Point(168, 62);
-            btnCerrarSesion.Size = new Size(118, 32);
-            btnCerrarSesion.Text = "Cerrar Sesión";
-            btnCerrarSesion.UseVisualStyleBackColor = false;
+            btnIniciarSesion.Location = new Point(0, 450);
+            btnIniciarSesion.Size = new Size(390, 44);
+            btnIniciarSesion.Text = "Iniciar sesión";
+            Theme.StyleCopperButton(btnIniciarSesion);
 
-            btnTokenInvalido.BackColor = Color.FromArgb(220, 53, 69);
-            btnTokenInvalido.FlatStyle = FlatStyle.Flat;
-            btnTokenInvalido.ForeColor = Color.White;
-            btnTokenInvalido.Location = new Point(295, 62);
-            btnTokenInvalido.Size = new Size(165, 32);
-            btnTokenInvalido.Text = "Probar Token Inválido (401)";
-            btnTokenInvalido.UseVisualStyleBackColor = false;
+            btnTokenInvalidoLogin.Location = new Point(0, 504);
+            btnTokenInvalidoLogin.Size = new Size(390, 34);
+            btnTokenInvalidoLogin.Text = "Probar JWT inválido (HTTP 401)";
+            Theme.StyleDarkButton(btnTokenInvalidoLogin, danger: true);
 
-            lblSesion.AutoSize = true;
-            lblSesion.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
-            lblSesion.ForeColor = Color.DarkSlateBlue;
-            lblSesion.Location = new Point(478, 69);
-            lblSesion.Text = "Sesión: No autenticado";
+            lblLoginFooter.AutoSize = false;
+            lblLoginFooter.Size = new Size(390, 38);
+            lblLoginFooter.Location = new Point(0, 550);
+            lblLoginFooter.Font = new Font("Segoe UI", 8F);
+            lblLoginFooter.ForeColor = Theme.Ink500;
+            lblLoginFooter.TextAlign = ContentAlignment.MiddleCenter;
+            lblLoginFooter.Text = "POST /oauth/token vía NGINX (:8090) · JWT solo en memoria\nEl registro de ventas es exclusivo de la PWA móvil";
 
-            grpAuth.Controls.AddRange(new Control[]
+            pnlLoginCard.Controls.AddRange(new Control[]
             {
-                lblGateway, txtGateway, lblUsuario, txtUsuario,
-                lblPassword, txtPassword, lblClientSecret, txtClientSecret,
-                btnIniciarSesion, btnCerrarSesion, btnTokenInvalido, lblSesion
+                picLoginLogo, lblLoginTitle, lblLoginSub,
+                lblUsuario, txtUsuario, lblPassword, txtPassword, chkMostrarPass,
+                lblGateway, txtGateway, lblClientSecret, txtClientSecret,
+                lblLoginError, btnIniciarSesion, btnTokenInvalidoLogin, lblLoginFooter
+            });
+            pnlLoginLeft.Controls.Add(pnlLoginCard);
+
+            // Lado derecho: Fotografía automotriz Cover + pie editorial
+            pnlLoginRight.Dock = DockStyle.Fill;
+
+            lblVisualTag.AutoSize = true;
+            lblVisualTag.BackColor = Color.Transparent;
+            lblVisualTag.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            lblVisualTag.ForeColor = Theme.Copper400;
+            lblVisualTag.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            lblVisualTag.Location = new Point(38, 560);
+            lblVisualTag.Text = "NEXORA AUTOS · APE 04";
+
+            lblVisualCaption.AutoSize = false;
+            lblVisualCaption.BackColor = Color.Transparent;
+            lblVisualCaption.Size = new Size(460, 64);
+            lblVisualCaption.Font = new Font("Segoe UI Semibold", 15F, FontStyle.Bold);
+            lblVisualCaption.ForeColor = Color.White;
+            lblVisualCaption.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            lblVisualCaption.Location = new Point(36, 586);
+            lblVisualCaption.Text = "Administración de inventario, compradores y trazabilidad comercial.";
+
+            pnlLoginRight.Controls.Add(lblVisualTag);
+            pnlLoginRight.Controls.Add(lblVisualCaption);
+
+            pnlLoginScreen.Controls.Add(pnlLoginRight);
+            pnlLoginScreen.Controls.Add(pnlLoginLeft);
+
+            // ================ PANTALLA 2: WORKSPACE ADMINISTRATIVO ================
+            pnlAppWorkspace.Dock = DockStyle.Fill;
+            pnlAppWorkspace.BackColor = Theme.Canvas;
+            pnlAppWorkspace.Visible = false;
+
+            // Sidebar Grafito #0B0F17
+            pnlSidebar.BackColor = Theme.Graphite950;
+            pnlSidebar.Dock = DockStyle.Left;
+            pnlSidebar.Width = 248;
+
+            pnlBrand.Dock = DockStyle.Top;
+            pnlBrand.Height = 114;
+            pnlBrand.BackColor = Theme.Graphite950;
+
+            picSidebarLogo.Size = new Size(194, 72);
+            picSidebarLogo.Location = new Point(26, 12);
+            picSidebarLogo.SizeMode = PictureBoxSizeMode.Zoom;
+            picSidebarLogo.BackColor = Color.Transparent;
+
+            lblBrandPill.AutoSize = false;
+            lblBrandPill.Size = new Size(186, 22);
+            lblBrandPill.Location = new Point(30, 86);
+            lblBrandPill.Font = new Font("Segoe UI", 7.8F, FontStyle.Bold);
+            lblBrandPill.ForeColor = Theme.Copper400;
+            lblBrandPill.BackColor = Color.FromArgb(40, 24, 18);
+            lblBrandPill.TextAlign = ContentAlignment.MiddleCenter;
+            lblBrandPill.Text = "ADMIN WINFORMS · APE 04";
+
+            pnlBrand.Controls.Add(picSidebarLogo);
+            pnlBrand.Controls.Add(lblBrandPill);
+
+            lblNavTitle.Dock = DockStyle.Top;
+            lblNavTitle.Height = 32;
+            lblNavTitle.Padding = new Padding(20, 12, 0, 0);
+            lblNavTitle.Font = new Font("Segoe UI", 7.8F, FontStyle.Bold);
+            lblNavTitle.ForeColor = Theme.Ink500;
+            lblNavTitle.Text = "PLATAFORMA";
+
+            ConfigurarNavItem(pnlNavVehiculos, pnlIndVehiculos, btnNavVehiculos, "  Vehículos", true);
+            ConfigurarNavItem(pnlNavCompradores, pnlIndCompradores, btnNavCompradores, "  Compradores", false);
+            ConfigurarNavItem(pnlNavVentas, pnlIndVentas, btnNavVentas, "  Ventas (Solo consulta)", false);
+
+            pnlSidebarFooter.Dock = DockStyle.Bottom;
+            pnlSidebarFooter.Height = 166;
+            pnlSidebarFooter.BackColor = Theme.Graphite950;
+
+            lblSesion.AutoSize = false;
+            lblSesion.Size = new Size(216, 30);
+            lblSesion.Location = new Point(16, 10);
+            lblSesion.Font = Theme.FontSmallBold;
+            lblSesion.ForeColor = Color.FromArgb(226, 232, 240);
+            lblSesion.BackColor = Theme.Graphite900;
+            lblSesion.TextAlign = ContentAlignment.MiddleCenter;
+            lblSesion.Text = "Sin sesión activa";
+
+            btnTokenInvalido.Location = new Point(16, 48);
+            btnTokenInvalido.Size = new Size(216, 30);
+            btnTokenInvalido.Text = "Probar JWT inválido (401)";
+            Theme.StyleDarkButton(btnTokenInvalido, danger: true);
+
+            btnCerrarSesion.Location = new Point(16, 84);
+            btnCerrarSesion.Size = new Size(216, 30);
+            btnCerrarSesion.Text = "Cerrar sesión";
+            Theme.StyleDarkButton(btnCerrarSesion, danger: false);
+
+            lblSidebarNota.AutoSize = false;
+            lblSidebarNota.Size = new Size(216, 38);
+            lblSidebarNota.Location = new Point(16, 122);
+            lblSidebarNota.Font = new Font("Segoe UI", 7.8F);
+            lblSidebarNota.ForeColor = Theme.Ink500;
+            lblSidebarNota.Text = "Gateway único NGINX (:8090)\nVentas exclusivas en PWA móvil";
+
+            pnlSidebarFooter.Controls.AddRange(new Control[]
+            {
+                lblSesion, btnTokenInvalido, btnCerrarSesion, lblSidebarNota
             });
 
-            // ================ STATUS BAR ================
-            pnlEstado.BackColor = Color.FromArgb(245, 247, 250);
+            pnlSidebar.Controls.Add(pnlSidebarFooter);
+            pnlSidebar.Controls.Add(pnlNavVentas);
+            pnlSidebar.Controls.Add(pnlNavCompradores);
+            pnlSidebar.Controls.Add(pnlNavVehiculos);
+            pnlSidebar.Controls.Add(lblNavTitle);
+            pnlSidebar.Controls.Add(pnlBrand);
+
+            // Topbar blanca limpia
+            pnlRightArea.Dock = DockStyle.Fill;
+            pnlRightArea.BackColor = Theme.Canvas;
+
+            pnlTopbar.Dock = DockStyle.Top;
+            pnlTopbar.Height = 72;
+            pnlTopbar.BackColor = Theme.Surface;
+            pnlTopbar.Paint += DibujarBordeInferior;
+
+            lblTopTitle.AutoSize = true;
+            lblTopTitle.Font = Theme.FontPageTitle;
+            lblTopTitle.ForeColor = Theme.Ink950;
+            lblTopTitle.Location = new Point(22, 12);
+            lblTopTitle.Text = "Gestión de Vehículos";
+
+            lblTopSub.AutoSize = true;
+            lblTopSub.Font = Theme.FontSmall;
+            lblTopSub.ForeColor = Theme.Ink500;
+            lblTopSub.Location = new Point(24, 42);
+            lblTopSub.Text = "POST /api/vehiculos y GET /api/vehiculos (Spring Boot vía NGINX :8090)";
+
+            lblTopBadge.AutoSize = true;
+            lblTopBadge.Font = Theme.FontSmallBold;
+            lblTopBadge.BackColor = Theme.Graphite950;
+            lblTopBadge.ForeColor = Color.White;
+            lblTopBadge.Padding = new Padding(10, 5, 10, 5);
+            lblTopBadge.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            lblTopBadge.Location = new Point(620, 12);
+            lblTopBadge.Text = "Sin registro de ventas";
+
+            lblTopKpi.AutoSize = true;
+            lblTopKpi.Font = Theme.FontSmallBold;
+            lblTopKpi.BackColor = Theme.Stone100;
+            lblTopKpi.ForeColor = Theme.Ink900;
+            lblTopKpi.Padding = new Padding(10, 4, 10, 4);
+            lblTopKpi.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            lblTopKpi.Location = new Point(620, 40);
+            lblTopKpi.Text = "0 registros";
+
+            pnlTopbar.Controls.AddRange(new Control[] { lblTopTitle, lblTopSub, lblTopBadge, lblTopKpi });
+
+            // Barra inferior de estado
+            pnlEstado.BackColor = Theme.Surface;
             pnlEstado.Dock = DockStyle.Bottom;
-            pnlEstado.Height = 36;
-            pnlEstado.Padding = new Padding(12, 6, 12, 6);
+            pnlEstado.Height = 38;
+            pnlEstado.Padding = new Padding(22, 6, 22, 6);
+            pnlEstado.Paint += DibujarBordeSuperior;
 
             prgCarga.Dock = DockStyle.Right;
             prgCarga.Style = ProgressBarStyle.Marquee;
             prgCarga.Visible = false;
-            prgCarga.Width = 140;
+            prgCarga.Width = 130;
 
             lblEstado.Dock = DockStyle.Fill;
-            lblEstado.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
-            lblEstado.ForeColor = Color.DarkSlateBlue;
+            lblEstado.Font = Theme.FontSmallBold;
+            lblEstado.ForeColor = Theme.Ink700;
             lblEstado.TextAlign = ContentAlignment.MiddleLeft;
-            lblEstado.Text = "Listo. Inicie sesión con sus credenciales para operar sobre los servicios vía NGINX (:8090).";
+            lblEstado.Text = "Listo para operar vía NGINX (:8090).";
 
             pnlEstado.Controls.Add(lblEstado);
             pnlEstado.Controls.Add(prgCarga);
 
-            // ================ TAB 1: VEHICULOS ================
-            tabVehiculos.Padding = new Padding(10);
-            tabVehiculos.Text = "1. Vehículos (Crear y Listar)";
+            pnlContentHost.Dock = DockStyle.Fill;
+            pnlContentHost.Padding = new Padding(22, 18, 22, 16);
+            pnlContentHost.BackColor = Theme.Canvas;
 
-            grpCrearVehiculo.Dock = DockStyle.Top;
-            grpCrearVehiculo.Height = 145;
-            grpCrearVehiculo.Text = "Registrar Vehículo (POST /api/vehiculos -> Spring Boot vía NGINX) y Consultar Catálogo (GET /api/vehiculos)";
+            // ================ MÓDULO 1: VEHÍCULOS ================
+            pnlModVehiculos.Dock = DockStyle.Fill;
+            pnlModVehiculos.BackColor = Theme.Canvas;
+
+            pnlFormVehiculo.Dock = DockStyle.Top;
+            pnlFormVehiculo.Height = 162;
+            pnlFormVehiculo.BackColor = Theme.Surface;
+            pnlFormVehiculo.Paint += DibujarBordeTarjeta;
+
+            lblFormVehTitle.AutoSize = true;
+            lblFormVehTitle.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
+            lblFormVehTitle.ForeColor = Theme.Ink500;
+            lblFormVehTitle.Location = new Point(18, 12);
+            lblFormVehTitle.Text = "REGISTRAR NUEVO VEHÍCULO (POST /api/vehiculos)";
 
             lblMarca.AutoSize = true;
-            lblMarca.Location = new Point(14, 28);
-            lblMarca.Text = "Marca:";
-            txtMarca.Location = new Point(66, 24);
-            txtMarca.Size = new Size(140, 24);
+            lblMarca.Font = Theme.FontSmallBold;
+            lblMarca.ForeColor = Theme.Ink700;
+            lblMarca.Location = new Point(18, 36);
+            lblMarca.Text = "Marca";
+            txtMarca.Location = new Point(18, 54);
+            txtMarca.Size = new Size(165, 25);
             txtMarca.PlaceholderText = "Ej. Toyota";
 
             lblModelo.AutoSize = true;
-            lblModelo.Location = new Point(220, 28);
-            lblModelo.Text = "Modelo:";
-            txtModelo.Location = new Point(280, 24);
-            txtModelo.Size = new Size(150, 24);
+            lblModelo.Font = Theme.FontSmallBold;
+            lblModelo.ForeColor = Theme.Ink700;
+            lblModelo.Location = new Point(196, 36);
+            lblModelo.Text = "Modelo";
+            txtModelo.Location = new Point(196, 54);
+            txtModelo.Size = new Size(175, 25);
             txtModelo.PlaceholderText = "Ej. Corolla Cross";
 
             lblPlaca.AutoSize = true;
-            lblPlaca.Location = new Point(446, 28);
-            lblPlaca.Text = "Placa:";
-            txtPlaca.Location = new Point(494, 24);
-            txtPlaca.Size = new Size(110, 24);
-            txtPlaca.PlaceholderText = "Ej. PBB4567";
+            lblPlaca.Font = Theme.FontSmallBold;
+            lblPlaca.ForeColor = Theme.Ink700;
+            lblPlaca.Location = new Point(384, 36);
+            lblPlaca.Text = "Placa";
+            txtPlaca.Location = new Point(384, 54);
+            txtPlaca.Size = new Size(125, 25);
+            txtPlaca.PlaceholderText = "PBB-4567";
 
             lblChasis.AutoSize = true;
-            lblChasis.Location = new Point(618, 28);
-            lblChasis.Text = "Chasis (17 chars):";
-            txtChasis.Location = new Point(738, 24);
-            txtChasis.Size = new Size(210, 24);
+            lblChasis.Font = Theme.FontSmallBold;
+            lblChasis.ForeColor = Theme.Ink700;
+            lblChasis.Location = new Point(522, 36);
+            lblChasis.Text = "Chasis (17 caracteres)";
+            txtChasis.Location = new Point(522, 54);
+            txtChasis.Size = new Size(235, 25);
             txtChasis.MaxLength = 17;
             txtChasis.PlaceholderText = "1HGCM82633A123499";
 
             lblAnio.AutoSize = true;
-            lblAnio.Location = new Point(14, 66);
-            lblAnio.Text = "Año:";
-            numAnio.Location = new Point(66, 62);
-            numAnio.Size = new Size(90, 24);
+            lblAnio.Font = Theme.FontSmallBold;
+            lblAnio.ForeColor = Theme.Ink700;
+            lblAnio.Location = new Point(18, 92);
+            lblAnio.Text = "Año";
+            numAnio.Location = new Point(18, 110);
+            numAnio.Size = new Size(92, 25);
             numAnio.Minimum = 1900;
             numAnio.Maximum = 2030;
             numAnio.Value = 2026;
 
             lblColor.AutoSize = true;
-            lblColor.Location = new Point(176, 66);
-            lblColor.Text = "Color:";
-            txtColor.Location = new Point(226, 62);
-            txtColor.Size = new Size(130, 24);
-            txtColor.PlaceholderText = "Ej. Gris";
+            lblColor.Font = Theme.FontSmallBold;
+            lblColor.ForeColor = Theme.Ink700;
+            lblColor.Location = new Point(124, 92);
+            lblColor.Text = "Color";
+            txtColor.Location = new Point(124, 110);
+            txtColor.Size = new Size(140, 25);
+            txtColor.PlaceholderText = "Ej. Grafito";
 
             lblPrecio.AutoSize = true;
-            lblPrecio.Location = new Point(374, 66);
-            lblPrecio.Text = "Precio (USD):";
-            numPrecio.Location = new Point(468, 62);
-            numPrecio.Size = new Size(135, 24);
+            lblPrecio.Font = Theme.FontSmallBold;
+            lblPrecio.ForeColor = Theme.Ink700;
+            lblPrecio.Location = new Point(278, 92);
+            lblPrecio.Text = "Precio (USD)";
+            numPrecio.Location = new Point(278, 110);
+            numPrecio.Size = new Size(140, 25);
             numPrecio.DecimalPlaces = 2;
             numPrecio.Minimum = 1;
             numPrecio.Maximum = 10000000;
             numPrecio.Value = 25000;
 
-            btnCrearVehiculo.BackColor = Color.FromArgb(25, 135, 84);
-            btnCrearVehiculo.FlatStyle = FlatStyle.Flat;
-            btnCrearVehiculo.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            btnCrearVehiculo.ForeColor = Color.White;
-            btnCrearVehiculo.Location = new Point(14, 100);
-            btnCrearVehiculo.Size = new Size(165, 32);
-            btnCrearVehiculo.Text = "Crear Vehículo (POST)";
-            btnCrearVehiculo.UseVisualStyleBackColor = false;
+            btnCrearVehiculo.Location = new Point(436, 104);
+            btnCrearVehiculo.Size = new Size(165, 34);
+            btnCrearVehiculo.Text = "Agregar vehículo";
+            Theme.StyleCopperButton(btnCrearVehiculo);
 
-            btnListarVehiculos.BackColor = Color.FromArgb(13, 110, 253);
-            btnListarVehiculos.FlatStyle = FlatStyle.Flat;
-            btnListarVehiculos.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            btnListarVehiculos.ForeColor = Color.White;
-            btnListarVehiculos.Location = new Point(190, 100);
-            btnListarVehiculos.Size = new Size(175, 32);
-            btnListarVehiculos.Text = "Listar Vehículos (GET)";
-            btnListarVehiculos.UseVisualStyleBackColor = false;
+            btnListarVehiculos.Location = new Point(611, 104);
+            btnListarVehiculos.Size = new Size(145, 34);
+            btnListarVehiculos.Text = "Listar inventario";
+            Theme.StyleSecondaryButton(btnListarVehiculos);
 
-            btnLimpiarVehiculos.BackColor = Color.FromArgb(108, 117, 125);
-            btnLimpiarVehiculos.FlatStyle = FlatStyle.Flat;
-            btnLimpiarVehiculos.ForeColor = Color.White;
-            btnLimpiarVehiculos.Location = new Point(376, 100);
-            btnLimpiarVehiculos.Size = new Size(110, 32);
+            btnLimpiarVehiculos.Location = new Point(766, 104);
+            btnLimpiarVehiculos.Size = new Size(94, 34);
             btnLimpiarVehiculos.Text = "Limpiar";
-            btnLimpiarVehiculos.UseVisualStyleBackColor = false;
+            Theme.StyleSecondaryButton(btnLimpiarVehiculos);
 
-            grpCrearVehiculo.Controls.AddRange(new Control[]
+            pnlFormVehiculo.Controls.AddRange(new Control[]
             {
-                lblMarca, txtMarca, lblModelo, txtModelo, lblPlaca, txtPlaca, lblChasis, txtChasis,
+                lblFormVehTitle, lblMarca, txtMarca, lblModelo, txtModelo, lblPlaca, txtPlaca, lblChasis, txtChasis,
                 lblAnio, numAnio, lblColor, txtColor, lblPrecio, numPrecio,
                 btnCrearVehiculo, btnListarVehiculos, btnLimpiarVehiculos
             });
 
-            ConfigurarGrid(dgvVehiculos, "dgvVehiculos");
-            tabVehiculos.Controls.Add(dgvVehiculos);
-            tabVehiculos.Controls.Add(grpCrearVehiculo);
+            pnlGridVehWrap.Dock = DockStyle.Fill;
+            pnlGridVehWrap.Padding = new Padding(0, 14, 0, 0);
+            pnlGridVehWrap.BackColor = Theme.Canvas;
+            Theme.StyleGrid(dgvVehiculos, "dgvVehiculos");
+            pnlGridVehWrap.Controls.Add(dgvVehiculos);
 
-            // ================ TAB 2: COMPRADORES ================
-            tabCompradores.Padding = new Padding(10);
-            tabCompradores.Text = "2. Compradores (Crear y Listar)";
+            pnlModVehiculos.Controls.Add(pnlGridVehWrap);
+            pnlModVehiculos.Controls.Add(pnlFormVehiculo);
 
-            grpCrearComprador.Dock = DockStyle.Top;
-            grpCrearComprador.Height = 112;
-            grpCrearComprador.Text = "Registrar Comprador (POST /api/compradores -> FastAPI vía NGINX) y Consultar Compradores (GET /api/compradores)";
+            // ================ MÓDULO 2: COMPRADORES ================
+            pnlModCompradores.Dock = DockStyle.Fill;
+            pnlModCompradores.BackColor = Theme.Canvas;
+            pnlModCompradores.Visible = false;
+
+            pnlFormComprador.Dock = DockStyle.Top;
+            pnlFormComprador.Height = 136;
+            pnlFormComprador.BackColor = Theme.Surface;
+            pnlFormComprador.Paint += DibujarBordeTarjeta;
+
+            lblFormCompTitle.AutoSize = true;
+            lblFormCompTitle.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
+            lblFormCompTitle.ForeColor = Theme.Ink500;
+            lblFormCompTitle.Location = new Point(18, 12);
+            lblFormCompTitle.Text = "REGISTRAR NUEVO COMPRADOR (POST /api/compradores)";
 
             lblDocumento.AutoSize = true;
-            lblDocumento.Location = new Point(14, 30);
-            lblDocumento.Text = "Documento / Cédula:";
-            txtDocumento.Location = new Point(150, 26);
-            txtDocumento.Size = new Size(165, 24);
+            lblDocumento.Font = Theme.FontSmallBold;
+            lblDocumento.ForeColor = Theme.Ink700;
+            lblDocumento.Location = new Point(18, 36);
+            lblDocumento.Text = "Documento / Cédula";
+            txtDocumento.Location = new Point(18, 54);
+            txtDocumento.Size = new Size(185, 25);
             txtDocumento.PlaceholderText = "Ej. 1805551122";
 
             lblNombreComp.AutoSize = true;
-            lblNombreComp.Location = new Point(332, 30);
-            lblNombreComp.Text = "Nombre completo:";
-            txtNombreComp.Location = new Point(455, 26);
-            txtNombreComp.Size = new Size(210, 24);
+            lblNombreComp.Font = Theme.FontSmallBold;
+            lblNombreComp.ForeColor = Theme.Ink700;
+            lblNombreComp.Location = new Point(216, 36);
+            lblNombreComp.Text = "Nombre completo";
+            txtNombreComp.Location = new Point(216, 54);
+            txtNombreComp.Size = new Size(255, 25);
             txtNombreComp.PlaceholderText = "Ej. María López";
 
             lblCorreoComp.AutoSize = true;
-            lblCorreoComp.Location = new Point(682, 30);
-            lblCorreoComp.Text = "Correo:";
-            txtCorreoComp.Location = new Point(738, 26);
-            txtCorreoComp.Size = new Size(235, 24);
+            lblCorreoComp.Font = Theme.FontSmallBold;
+            lblCorreoComp.ForeColor = Theme.Ink700;
+            lblCorreoComp.Location = new Point(484, 36);
+            lblCorreoComp.Text = "Correo electrónico";
+            txtCorreoComp.Location = new Point(484, 54);
+            txtCorreoComp.Size = new Size(275, 25);
             txtCorreoComp.PlaceholderText = "maria.lopez@uta.edu.ec";
 
-            btnCrearComprador.BackColor = Color.FromArgb(25, 135, 84);
-            btnCrearComprador.FlatStyle = FlatStyle.Flat;
-            btnCrearComprador.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            btnCrearComprador.ForeColor = Color.White;
-            btnCrearComprador.Location = new Point(14, 66);
-            btnCrearComprador.Size = new Size(180, 32);
-            btnCrearComprador.Text = "Crear Comprador (POST)";
-            btnCrearComprador.UseVisualStyleBackColor = false;
+            btnCrearComprador.Location = new Point(18, 88);
+            btnCrearComprador.Size = new Size(175, 34);
+            btnCrearComprador.Text = "Agregar comprador";
+            Theme.StyleCopperButton(btnCrearComprador);
 
-            btnListarCompradores.BackColor = Color.FromArgb(13, 110, 253);
-            btnListarCompradores.FlatStyle = FlatStyle.Flat;
-            btnListarCompradores.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            btnListarCompradores.ForeColor = Color.White;
-            btnListarCompradores.Location = new Point(206, 66);
-            btnListarCompradores.Size = new Size(185, 32);
-            btnListarCompradores.Text = "Listar Compradores (GET)";
-            btnListarCompradores.UseVisualStyleBackColor = false;
+            btnListarCompradores.Location = new Point(203, 88);
+            btnListarCompradores.Size = new Size(165, 34);
+            btnListarCompradores.Text = "Listar compradores";
+            Theme.StyleSecondaryButton(btnListarCompradores);
 
-            btnLimpiarCompradores.BackColor = Color.FromArgb(108, 117, 125);
-            btnLimpiarCompradores.FlatStyle = FlatStyle.Flat;
-            btnLimpiarCompradores.ForeColor = Color.White;
-            btnLimpiarCompradores.Location = new Point(402, 66);
-            btnLimpiarCompradores.Size = new Size(110, 32);
+            btnLimpiarCompradores.Location = new Point(378, 88);
+            btnLimpiarCompradores.Size = new Size(94, 34);
             btnLimpiarCompradores.Text = "Limpiar";
-            btnLimpiarCompradores.UseVisualStyleBackColor = false;
+            Theme.StyleSecondaryButton(btnLimpiarCompradores);
 
-            grpCrearComprador.Controls.AddRange(new Control[]
+            pnlFormComprador.Controls.AddRange(new Control[]
             {
-                lblDocumento, txtDocumento, lblNombreComp, txtNombreComp, lblCorreoComp, txtCorreoComp,
+                lblFormCompTitle, lblDocumento, txtDocumento, lblNombreComp, txtNombreComp, lblCorreoComp, txtCorreoComp,
                 btnCrearComprador, btnListarCompradores, btnLimpiarCompradores
             });
 
-            ConfigurarGrid(dgvCompradores, "dgvCompradores");
-            tabCompradores.Controls.Add(dgvCompradores);
-            tabCompradores.Controls.Add(grpCrearComprador);
+            pnlGridCompWrap.Dock = DockStyle.Fill;
+            pnlGridCompWrap.Padding = new Padding(0, 14, 0, 0);
+            pnlGridCompWrap.BackColor = Theme.Canvas;
+            Theme.StyleGrid(dgvCompradores, "dgvCompradores");
+            pnlGridCompWrap.Controls.Add(dgvCompradores);
 
-            // ================ TAB 3: VENTAS (SOLO LECTURA) ================
-            tabVentas.Padding = new Padding(10);
-            tabVentas.Text = "3. Ventas (Solo Consulta)";
+            pnlModCompradores.Controls.Add(pnlGridCompWrap);
+            pnlModCompradores.Controls.Add(pnlFormComprador);
 
-            pnlVentasTop.Dock = DockStyle.Top;
-            pnlVentasTop.Height = 64;
+            // ================ MÓDULO 3: VENTAS (SOLO CONSULTA) ================
+            pnlModVentas.Dock = DockStyle.Fill;
+            pnlModVentas.BackColor = Theme.Canvas;
+            pnlModVentas.Visible = false;
+
+            pnlVentasBar.Dock = DockStyle.Top;
+            pnlVentasBar.Height = 84;
+            pnlVentasBar.BackColor = Theme.Surface;
+            pnlVentasBar.Paint += DibujarBordeTarjeta;
 
             lblAvisoVentas.AutoSize = true;
-            lblAvisoVentas.Font = new Font("Segoe UI", 9F, FontStyle.Italic);
-            lblAvisoVentas.ForeColor = Color.FromArgb(120, 40, 40);
-            lblAvisoVentas.Location = new Point(6, 4);
-            lblAvisoVentas.Text = "Módulo administrativo de solo lectura (GET /api/ventas -> FastAPI vía NGINX). El registro de ventas es exclusivo de la PWA móvil.";
+            lblAvisoVentas.Font = Theme.FontSmallBold;
+            lblAvisoVentas.ForeColor = Theme.Ink700;
+            lblAvisoVentas.Location = new Point(18, 13);
+            lblAvisoVentas.Text = "Módulo administrativo de solo consulta (GET /api/ventas): el registro de nuevas ventas es exclusivo de la PWA móvil.";
 
-            btnListarVentas.BackColor = Color.FromArgb(13, 110, 253);
-            btnListarVentas.FlatStyle = FlatStyle.Flat;
-            btnListarVentas.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            btnListarVentas.ForeColor = Color.White;
-            btnListarVentas.Location = new Point(6, 26);
-            btnListarVentas.Size = new Size(175, 32);
-            btnListarVentas.Text = "Listar Ventas (GET)";
-            btnListarVentas.UseVisualStyleBackColor = false;
+            btnListarVentas.Location = new Point(18, 38);
+            btnListarVentas.Size = new Size(165, 34);
+            btnListarVentas.Text = "Consultar ventas";
+            Theme.StyleCopperButton(btnListarVentas);
 
-            btnLimpiarVentas.BackColor = Color.FromArgb(108, 117, 125);
-            btnLimpiarVentas.FlatStyle = FlatStyle.Flat;
-            btnLimpiarVentas.ForeColor = Color.White;
-            btnLimpiarVentas.Location = new Point(192, 26);
-            btnLimpiarVentas.Size = new Size(110, 32);
+            btnLimpiarVentas.Location = new Point(193, 38);
+            btnLimpiarVentas.Size = new Size(94, 34);
             btnLimpiarVentas.Text = "Limpiar";
-            btnLimpiarVentas.UseVisualStyleBackColor = false;
+            Theme.StyleSecondaryButton(btnLimpiarVentas);
 
-            pnlVentasTop.Controls.AddRange(new Control[] { lblAvisoVentas, btnListarVentas, btnLimpiarVentas });
+            pnlVentasBar.Controls.AddRange(new Control[] { lblAvisoVentas, btnListarVentas, btnLimpiarVentas });
 
-            ConfigurarGrid(dgvVentas, "dgvVentas");
-            tabVentas.Controls.Add(dgvVentas);
-            tabVentas.Controls.Add(pnlVentasTop);
+            pnlGridVenWrap.Dock = DockStyle.Fill;
+            pnlGridVenWrap.Padding = new Padding(0, 14, 0, 0);
+            pnlGridVenWrap.BackColor = Theme.Canvas;
+            Theme.StyleGrid(dgvVentas, "dgvVentas");
+            pnlGridVenWrap.Controls.Add(dgvVentas);
 
-            // ================ TAB CONTROL ================
-            tabPrincipal.Dock = DockStyle.Fill;
-            tabPrincipal.Font = new Font("Segoe UI", 9.5F);
-            tabPrincipal.Controls.Add(tabVehiculos);
-            tabPrincipal.Controls.Add(tabCompradores);
-            tabPrincipal.Controls.Add(tabVentas);
+            pnlModVentas.Controls.Add(pnlGridVenWrap);
+            pnlModVentas.Controls.Add(pnlVentasBar);
 
-            // ================ FORM ================
+            pnlContentHost.Controls.Add(pnlModVentas);
+            pnlContentHost.Controls.Add(pnlModCompradores);
+            pnlContentHost.Controls.Add(pnlModVehiculos);
+
+            pnlRightArea.Controls.Add(pnlContentHost);
+            pnlRightArea.Controls.Add(pnlTopbar);
+            pnlRightArea.Controls.Add(pnlEstado);
+
+            pnlAppWorkspace.Controls.Add(pnlRightArea);
+            pnlAppWorkspace.Controls.Add(pnlSidebar);
+
+            // ================ FORMULARIO RAÍZ ================
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1090, 680);
-            MinimumSize = new Size(1020, 620);
-            Font = new Font("Segoe UI", 9.5F);
+            BackColor = Theme.Graphite920;
+            ClientSize = new Size(1220, 720);
+            MinimumSize = new Size(1120, 650);
+            Font = Theme.FontBody;
             Name = "Form1";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "APE 04 — Administración Windows Forms (Vehículos, Compradores y Consulta de Ventas)";
+            Text = "NEXORA Autos Admin — Windows Forms (Vehículos, Compradores y Consulta de Ventas)";
 
-            Controls.Add(tabPrincipal);
-            Controls.Add(grpAuth);
-            Controls.Add(pnlHeader);
-            Controls.Add(pnlEstado);
+            Controls.Add(pnlAppWorkspace);
+            Controls.Add(pnlLoginScreen);
 
-            pnlHeader.ResumeLayout(false);
-            pnlHeader.PerformLayout();
-            grpAuth.ResumeLayout(false);
-            grpAuth.PerformLayout();
-            pnlEstado.ResumeLayout(false);
-            tabPrincipal.ResumeLayout(false);
-            tabVehiculos.ResumeLayout(false);
-            grpCrearVehiculo.ResumeLayout(false);
-            grpCrearVehiculo.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)picLoginLogo).EndInit();
+            ((System.ComponentModel.ISupportInitialize)picSidebarLogo).EndInit();
             ((System.ComponentModel.ISupportInitialize)numAnio).EndInit();
             ((System.ComponentModel.ISupportInitialize)numPrecio).EndInit();
             ((System.ComponentModel.ISupportInitialize)dgvVehiculos).EndInit();
-            tabCompradores.ResumeLayout(false);
-            grpCrearComprador.ResumeLayout(false);
-            grpCrearComprador.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)dgvCompradores).EndInit();
-            tabVentas.ResumeLayout(false);
-            pnlVentasTop.ResumeLayout(false);
-            pnlVentasTop.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)dgvVentas).EndInit();
             ResumeLayout(false);
         }
 
-        private static void ConfigurarGrid(DataGridView dgv, string name)
+        private static void ConfigurarNavItem(Panel container, Panel indicator, Button button, string text, bool active)
         {
-            dgv.Name = name;
-            dgv.Dock = DockStyle.Fill;
-            dgv.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dgv.BackgroundColor = Color.White;
-            dgv.ColumnHeadersHeight = 30;
-            dgv.MultiSelect = false;
-            dgv.ReadOnly = true;
-            dgv.RowHeadersVisible = false;
-            dgv.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgv.AllowUserToAddRows = false;
-            dgv.AllowUserToDeleteRows = false;
+            container.Dock = DockStyle.Top;
+            container.Height = 44;
+            container.BackColor = active ? Theme.Graphite900 : Theme.Graphite950;
+
+            indicator.Dock = DockStyle.Left;
+            indicator.Width = 4;
+            indicator.BackColor = active ? Theme.Copper600 : Color.Transparent;
+
+            button.Dock = DockStyle.Fill;
+            button.FlatStyle = FlatStyle.Flat;
+            button.FlatAppearance.BorderSize = 0;
+            button.FlatAppearance.MouseOverBackColor = Theme.Graphite850;
+            button.FlatAppearance.MouseDownBackColor = Theme.Graphite800;
+            button.BackColor = active ? Theme.Graphite900 : Theme.Graphite950;
+            button.ForeColor = active ? Color.White : Theme.TextOnDarkMuted;
+            button.Font = Theme.FontBodyBold;
+            button.TextAlign = ContentAlignment.MiddleLeft;
+            button.Padding = new Padding(14, 0, 0, 0);
+            button.Text = text;
+            button.Cursor = Cursors.Hand;
+            button.UseVisualStyleBackColor = false;
+
+            container.Controls.Add(button);
+            container.Controls.Add(indicator);
+        }
+
+        private static void DibujarBordeTarjeta(object sender, PaintEventArgs e)
+        {
+            if (sender is Control ctrl)
+            {
+                using var pen = new Pen(Theme.Stone150, 1);
+                e.Graphics.DrawRectangle(pen, 0, 0, ctrl.Width - 1, ctrl.Height - 1);
+            }
+        }
+
+        private static void DibujarBordeInferior(object sender, PaintEventArgs e)
+        {
+            if (sender is Control ctrl)
+            {
+                using var pen = new Pen(Theme.Stone150, 1);
+                e.Graphics.DrawLine(pen, 0, ctrl.Height - 1, ctrl.Width, ctrl.Height - 1);
+            }
+        }
+
+        private static void DibujarBordeSuperior(object sender, PaintEventArgs e)
+        {
+            if (sender is Control ctrl)
+            {
+                using var pen = new Pen(Theme.Stone150, 1);
+                e.Graphics.DrawLine(pen, 0, 0, ctrl.Width, 0);
+            }
         }
 
         #endregion
 
-        private Panel pnlHeader = null!;
-        private Label lblTitulo = null!;
-        private Label lblSubtitulo = null!;
-
-        private GroupBox grpAuth = null!;
-        private Label lblGateway = null!;
-        private TextBox txtGateway = null!;
+        // Pantalla 1: Login oscuro
+        private Panel pnlLoginScreen = null!;
+        private Panel pnlLoginLeft = null!;
+        private Panel pnlLoginCard = null!;
+        private PictureBox picLoginLogo = null!;
+        private Label lblLoginTitle = null!;
+        private Label lblLoginSub = null!;
         private Label lblUsuario = null!;
         private TextBox txtUsuario = null!;
         private Label lblPassword = null!;
         private TextBox txtPassword = null!;
+        private CheckBox chkMostrarPass = null!;
+        private Label lblGateway = null!;
+        private TextBox txtGateway = null!;
         private Label lblClientSecret = null!;
         private TextBox txtClientSecret = null!;
+        private Label lblLoginError = null!;
         private Button btnIniciarSesion = null!;
-        private Button btnCerrarSesion = null!;
-        private Button btnTokenInvalido = null!;
+        private Button btnTokenInvalidoLogin = null!;
+        private Label lblLoginFooter = null!;
+        private CoverImagePanel pnlLoginRight = null!;
+        private Label lblVisualTag = null!;
+        private Label lblVisualCaption = null!;
+
+        // Pantalla 2: Workspace
+        private Panel pnlAppWorkspace = null!;
+        private Panel pnlSidebar = null!;
+        private Panel pnlBrand = null!;
+        private PictureBox picSidebarLogo = null!;
+        private Label lblBrandPill = null!;
+        private Label lblNavTitle = null!;
+        private Panel pnlNavVehiculos = null!;
+        private Panel pnlIndVehiculos = null!;
+        private Button btnNavVehiculos = null!;
+        private Panel pnlNavCompradores = null!;
+        private Panel pnlIndCompradores = null!;
+        private Button btnNavCompradores = null!;
+        private Panel pnlNavVentas = null!;
+        private Panel pnlIndVentas = null!;
+        private Button btnNavVentas = null!;
+        private Panel pnlSidebarFooter = null!;
         private Label lblSesion = null!;
+        private Button btnTokenInvalido = null!;
+        private Button btnCerrarSesion = null!;
+        private Label lblSidebarNota = null!;
 
-        private Panel pnlEstado = null!;
-        private Label lblEstado = null!;
-        private ProgressBar prgCarga = null!;
+        private Panel pnlRightArea = null!;
+        private Panel pnlTopbar = null!;
+        private Label lblTopTitle = null!;
+        private Label lblTopSub = null!;
+        private Label lblTopBadge = null!;
+        private Label lblTopKpi = null!;
+        private Panel pnlContentHost = null!;
 
-        private TabControl tabPrincipal = null!;
-
-        private TabPage tabVehiculos = null!;
-        private GroupBox grpCrearVehiculo = null!;
+        // Módulo Vehículos
+        private Panel pnlModVehiculos = null!;
+        private Panel pnlFormVehiculo = null!;
+        private Label lblFormVehTitle = null!;
         private Label lblMarca = null!;
         private TextBox txtMarca = null!;
         private Label lblModelo = null!;
@@ -524,10 +822,13 @@
         private Button btnCrearVehiculo = null!;
         private Button btnListarVehiculos = null!;
         private Button btnLimpiarVehiculos = null!;
+        private Panel pnlGridVehWrap = null!;
         private DataGridView dgvVehiculos = null!;
 
-        private TabPage tabCompradores = null!;
-        private GroupBox grpCrearComprador = null!;
+        // Módulo Compradores
+        private Panel pnlModCompradores = null!;
+        private Panel pnlFormComprador = null!;
+        private Label lblFormCompTitle = null!;
         private Label lblDocumento = null!;
         private TextBox txtDocumento = null!;
         private Label lblNombreComp = null!;
@@ -537,13 +838,21 @@
         private Button btnCrearComprador = null!;
         private Button btnListarCompradores = null!;
         private Button btnLimpiarCompradores = null!;
+        private Panel pnlGridCompWrap = null!;
         private DataGridView dgvCompradores = null!;
 
-        private TabPage tabVentas = null!;
-        private Panel pnlVentasTop = null!;
+        // Módulo Ventas (Solo consulta)
+        private Panel pnlModVentas = null!;
+        private Panel pnlVentasBar = null!;
         private Label lblAvisoVentas = null!;
         private Button btnListarVentas = null!;
         private Button btnLimpiarVentas = null!;
+        private Panel pnlGridVenWrap = null!;
         private DataGridView dgvVentas = null!;
+
+        // Status bar
+        private Panel pnlEstado = null!;
+        private Label lblEstado = null!;
+        private ProgressBar prgCarga = null!;
     }
 }
