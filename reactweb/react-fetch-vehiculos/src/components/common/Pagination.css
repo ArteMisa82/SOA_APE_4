@@ -1,0 +1,148 @@
+/* ==========================================================================
+   NEXORA Autos · Componente de Paginación
+   ========================================================================== */
+
+.pagination-bar {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--stone-150);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.pagination-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.pagination-summary {
+  font-size: 13px;
+  color: var(--ink-500);
+}
+
+.pagination-summary strong {
+  color: var(--ink-900);
+  font-weight: 700;
+}
+
+.pagination-size {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-600);
+}
+
+.pagination-select {
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--stone-200);
+  background: var(--surface);
+  color: var(--ink-900);
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--shadow-xs);
+  transition: border-color 0.14s ease;
+}
+
+.pagination-select:focus {
+  border-color: var(--copper-500);
+  box-shadow: 0 0 0 3px var(--copper-glow);
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.pagination-pages {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pagination-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--stone-200);
+  background: var(--surface);
+  color: var(--ink-800);
+  font-size: 12.5px;
+  font-weight: 600;
+  transition: all 0.14s ease;
+  box-shadow: var(--shadow-xs);
+}
+
+.pagination-btn:hover:not(:disabled) {
+  border-color: var(--copper-500);
+  color: var(--copper-700);
+  background: var(--copper-soft);
+}
+
+.pagination-btn.active {
+  background: var(--graphite-900);
+  border-color: var(--graphite-900);
+  color: #FFFFFF;
+  box-shadow: var(--shadow-xs);
+}
+
+.pagination-btn.active:hover {
+  background: var(--graphite-850);
+  border-color: var(--graphite-850);
+  color: #FFFFFF;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.pagination-num {
+  padding: 0 6px;
+}
+
+.pagination-ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 34px;
+  color: var(--ink-400);
+  font-weight: 700;
+  user-select: none;
+}
+
+@media (max-width: 640px) {
+  .pagination-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .pagination-info {
+    justify-content: space-between;
+  }
+
+  .pagination-controls {
+    justify-content: center;
+  }
+
+  .pagination-nav span {
+    display: none;
+  }
+}

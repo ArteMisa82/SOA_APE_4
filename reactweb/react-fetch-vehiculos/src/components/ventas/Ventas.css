@@ -1,0 +1,49 @@
+/* ==========================================================================
+   NEXORA Autos · Seguimiento de Ventas
+   ========================================================================== */
+
+.table-sales {
+  min-width: 820px;
+}
+
+.readonly-callout {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: var(--radius-lg);
+  background: var(--stone-50);
+  border: 1px solid var(--stone-200);
+  margin-bottom: 18px;
+}
+
+.readonly-callout-icon {
+  color: var(--copper-600);
+  margin-top: 1px;
+}
+
+.readonly-callout-text {
+  font-size: 13.5px;
+  color: var(--ink-700);
+  line-height: 1.5;
+}
+
+.readonly-callout-text strong {
+  color: var(--ink-950);
+  margin-right: 4px;
+}
+
+.moneda-code {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--ink-500);
+}
+
+.operacion-pill {
+  display: inline-block;
+  max-width: 130px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+}

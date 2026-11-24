@@ -1,0 +1,421 @@
+/* ==========================================================================
+   NEXORA Autos · Login Oscuro (Izquierda: Contenido · Derecha: Solo Imagen)
+   Diseñado para adaptarse a la pantalla sin scrollbars
+   ========================================================================== */
+
+.luxury-login-page {
+  height: 100vh;
+  height: 100dvh;
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(360px, 470px) 1fr;
+  background: #08090C;
+  color: #FFFFFF;
+  font-family: var(--font-body);
+  position: relative;
+  overflow: hidden;
+}
+
+.luxury-login-main {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(16px, 2.6vh, 30px) clamp(24px, 3vw, 44px);
+  background: #08090C;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 2;
+  overflow: hidden;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.luxury-login-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.luxury-sys-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: #94A3B8;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.luxury-login-center {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(8px, 1.8vh, 20px) 0;
+}
+
+.luxury-login-box {
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Tarjeta con resplandor cobre para el logo */
+.luxury-logo-stack {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(18, 22, 32, 0.72);
+  border: 1px solid rgba(234, 88, 12, 0.28);
+  box-shadow: 0 0 32px rgba(234, 88, 12, 0.15);
+  border-radius: var(--radius-lg);
+  padding: clamp(8px, 1.5vh, 14px) 22px;
+  margin-bottom: clamp(12px, 2.2vh, 22px);
+  backdrop-filter: blur(10px);
+}
+
+.luxury-logo-hero {
+  max-height: clamp(34px, 5vh, 48px);
+  width: auto;
+  object-fit: contain;
+  mix-blend-mode: lighten;
+}
+
+.luxury-titles {
+  margin-bottom: clamp(12px, 2vh, 20px);
+}
+
+.luxury-brand-tag {
+  display: inline-block;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--copper-400);
+  margin-bottom: 4px;
+}
+
+.luxury-login-title {
+  font-family: var(--font-display);
+  font-size: clamp(22px, 3vh, 28px);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: #FFFFFF;
+  margin: 0 0 5px;
+  line-height: 1.15;
+}
+
+.luxury-login-sub {
+  margin: 0;
+  font-size: clamp(12.5px, 1.5vh, 13.5px);
+  color: #94A3B8;
+  line-height: 1.45;
+}
+
+.luxury-login-form {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(10px, 1.6vh, 15px);
+}
+
+.luxury-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.luxury-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #94A3B8;
+  letter-spacing: 0.01em;
+}
+
+.luxury-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.luxury-input-icon {
+  position: absolute;
+  left: 14px;
+  color: #64748B;
+  pointer-events: none;
+  transition: color 0.15s ease;
+}
+
+.luxury-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  color: #FFFFFF;
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  padding: clamp(9px, 1.3vh, 12px) 14px clamp(9px, 1.3vh, 12px) 42px;
+  outline: none;
+  transition: all 0.18s ease;
+  box-sizing: border-box;
+}
+
+.luxury-input::placeholder {
+  color: #475569;
+}
+
+.luxury-input:hover {
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.luxury-input:focus {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--copper-500);
+  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.22);
+}
+
+.luxury-input-wrap:focus-within .luxury-input-icon {
+  color: var(--copper-400);
+}
+
+.luxury-input.with-eye {
+  padding-right: 44px;
+}
+
+.luxury-eye-btn {
+  position: absolute;
+  right: 10px;
+  background: transparent;
+  border: 0;
+  color: #64748B;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.luxury-eye-btn:hover {
+  color: #FFFFFF;
+}
+
+.luxury-links-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11.5px;
+  flex-wrap: wrap;
+}
+
+.luxury-hint-text {
+  color: #64748B;
+}
+
+.luxury-hint-text code {
+  color: #CBD5E1;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 11px;
+}
+
+.luxury-text-link {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: #94A3B8;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.15s ease;
+}
+
+.luxury-text-link:hover {
+  color: var(--copper-400);
+}
+
+.luxury-error-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 9px;
+  background: rgba(220, 38, 38, 0.14);
+  border: 1px solid rgba(220, 38, 38, 0.35);
+  color: #FCA5A5;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.luxury-http-code {
+  margin-left: auto;
+  font-family: var(--font-body);
+  font-size: 10.5px;
+  font-weight: 700;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+/* Botón Iniciar sesión con borde resplandeciente cobre */
+.luxury-btn-copper {
+  width: 100%;
+  height: clamp(40px, 5.2vh, 46px);
+  border-radius: 10px;
+  background: linear-gradient(180deg, #1A1311 0%, #0D0E14 100%);
+  border: 1.5px solid var(--copper-600);
+  color: #FFFFFF;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.015em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  margin-top: 2px;
+  box-shadow: 0 0 20px rgba(234, 88, 12, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.luxury-btn-copper:hover:not(:disabled) {
+  border-color: var(--copper-400);
+  box-shadow: 0 0 28px rgba(234, 88, 12, 0.52), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+.luxury-btn-copper:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: 0 0 14px rgba(234, 88, 12, 0.3);
+}
+
+.luxury-btn-copper:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.luxury-login-footer {
+  flex-shrink: 0;
+  text-align: center;
+  font-size: 11px;
+  color: #475569;
+  letter-spacing: 0.02em;
+}
+
+/* Lado derecho: Únicamente fotografía automotriz sobre fondo oscuro */
+.luxury-login-visual {
+  position: relative;
+  height: 100%;
+  min-height: 0;
+  width: 100%;
+  background-color: #08090C;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  overflow: hidden;
+}
+
+.luxury-visual-fade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    #08090C 0%,
+    rgba(8, 9, 12, 0.55) 14%,
+    rgba(8, 9, 12, 0.08) 42%,
+    rgba(8, 9, 12, 0.32) 100%
+  );
+  pointer-events: none;
+}
+
+/* ==================== ADAPTACIÓN RESPONSIVE SIN SCROLL ==================== */
+@media (max-width: 980px) {
+  .luxury-login-page {
+    grid-template-columns: minmax(320px, 410px) 1fr;
+  }
+
+  .luxury-login-main {
+    padding: clamp(14px, 2.2vh, 24px) 24px;
+  }
+}
+
+@media (max-width: 760px) {
+  .luxury-login-page {
+    grid-template-columns: 1fr;
+  }
+
+  .luxury-login-main {
+    border-right: 0;
+    padding: 18px 20px;
+  }
+
+  .luxury-login-visual {
+    display: none;
+  }
+}
+
+@media (max-height: 660px) {
+  .luxury-login-main {
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+
+  .luxury-logo-stack {
+    padding: 6px 16px;
+    margin-bottom: 10px;
+  }
+
+  .luxury-logo-hero {
+    max-height: 30px;
+  }
+
+  .luxury-titles {
+    margin-bottom: 10px;
+  }
+
+  .luxury-login-title {
+    font-size: 20px;
+    margin-bottom: 2px;
+  }
+
+  .luxury-login-sub {
+    font-size: 12px;
+  }
+
+  .luxury-login-form {
+    gap: 8px;
+  }
+
+  .luxury-input {
+    padding-top: 8px;
+    padding-bottom: 8px;
+    font-size: 13px;
+  }
+
+  .luxury-btn-copper {
+    height: 38px;
+    font-size: 13px;
+  }
+
+  .luxury-login-footer {
+    font-size: 10px;
+  }
+}

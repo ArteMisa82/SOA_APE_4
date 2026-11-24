@@ -1,17 +1,220 @@
-/* Estilos globales: tipografía, colores de fondo y tamaño de controles. */
+/* Design Tokens NEXORA Autos — Luxury Automotive Corporate Theme (Grafito Ejecutivo · Canvas Seda · Cobre Deportivo) */
+
 :root {
-  font-family: Arial, Helvetica, sans-serif;
-  color: #19324d;
-  background: #f2f5f9;
+  /* SUPERFICIES Y BASE */
+  --graphite-950: #0B0F17;
+  --graphite-900: #111827;
+  --graphite-850: #162032;
+  --graphite-800: #1F2937;
+  --graphite-700: #374151;
+
+  --stone-50: #F8FAFC;
+  --stone-100: #F1F5F9;
+  --stone-150: #E2E8F0;
+  --stone-200: #CBD5E1;
+  --stone-300: #94A3B8;
+  
+  --surface: #FFFFFF;
+  --surface-raised: #FFFFFF;
+  --surface-glass: rgba(255, 255, 255, 0.88);
+
+  /* TEXTO / INK */
+  --ink-950: #090D16;
+  --ink-900: #0F172A;
+  --ink-800: #1E293B;
+  --ink-700: #334155;
+  --ink-600: #475569;
+  --ink-500: #64748B;
+  --ink-400: #94A3B8;
+  --ink-300: #CBD5E1;
+
+  /* ACENTO PRINCIPAL: COBRE AUTOMOTRIZ */
+  --copper-400: #FB923C;
+  --copper-500: #F97316;
+  --copper-600: #EA580C;
+  --copper-700: #C2410C;
+  --copper-800: #9A3412;
+  --copper-soft: #FFF7ED;
+  --copper-soft-hover: #FFEDD5;
+  --copper-border: #FED7AA;
+  --copper-glow: rgba(234, 88, 12, 0.22);
+  --copper-disabled: #FDBA74;
+
+  /* ESTADOS SEMÁNTICOS */
+  --status-available-fg: #059669;
+  --status-available-bg: #ECFDF5;
+  --status-available-border: #A7F3D0;
+  --status-available-glow: rgba(16, 185, 129, 0.22);
+
+  --status-reserved-fg: #2563EB;
+  --status-reserved-bg: #EFF6FF;
+  --status-reserved-border: #BFDBFE;
+  --status-reserved-glow: rgba(37, 99, 235, 0.22);
+
+  --status-sold-fg: #64748B;
+  --status-sold-bg: #F1F5F9;
+  --status-sold-border: #CBD5E1;
+
+  /* ERRORES Y ADVERTENCIAS */
+  --sys-error-fg: #DC2626;
+  --sys-error-bg: #FEF2F2;
+  --sys-error-border: #FECACA;
+  --sys-error-glow: rgba(220, 38, 38, 0.18);
+
+  --sys-warn-fg: #D97706;
+  --sys-warn-bg: #FFFBEB;
+  --sys-warn-border: #FDE68A;
+
+  /* TIPOGRAFÍA */
+  --font-display: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-body: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+
+  /* RADIOS Y BORDES */
+  --radius-xs: 6px;
+  --radius-sm: 9px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* SOMBRAS PREMIUM ELEVADAS */
+  --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-card:
+    0 1px 3px rgba(15, 23, 42, 0.05),
+    0 8px 24px -4px rgba(15, 23, 42, 0.04);
+  --shadow-hover:
+    0 10px 30px -4px rgba(15, 23, 42, 0.08),
+    0 4px 10px -2px rgba(15, 23, 42, 0.04);
+  --shadow-modal:
+    0 20px 40px -8px rgba(15, 23, 42, 0.14),
+    0 8px 16px -4px rgba(15, 23, 42, 0.08);
+
+  font-family: var(--font-body);
+  color: var(--ink-900);
+  background: #08090C;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
-* { box-sizing: border-box; }
-  body { margin: 0; }
-  button, input { font: inherit; }
-  button { cursor: pointer; }
-  button:disabled { cursor: wait; opacity: 0.60; }
-  button:focus-visible, input:focus-visible {
-    outline: 3px solid #e4a529;
-    outline-offset: 2px;
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #08090C;
+  color: var(--ink-900);
+  font-family: var(--font-body);
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--copper-soft-hover);
+  color: var(--copper-800);
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--copper-500);
+  outline-offset: 2px;
+}
+
+/* Tipografía tabular y mono */
+.tabular {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink-500);
+  letter-spacing: -0.01em;
+}
+
+/* Scrollbar moderno estilizado */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--stone-200);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--stone-300);
+}
+
+/* Animaciones */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spin {
+  animation: spin 0.85s linear infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.25);
+    opacity: 0.65;
+  }
+}
+
+.pulse-dot {
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeSlideIn 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
