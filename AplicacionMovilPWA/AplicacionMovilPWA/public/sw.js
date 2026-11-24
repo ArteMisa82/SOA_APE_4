@@ -2,10 +2,11 @@
  * Service Worker: permite abrir la interfaz instalada sin red.
  * Por seguridad NUNCA intercepta /api, /oauth, Authorization ni respuestas JSON.
  */
-const VERSION = 'vehiculos-pwa-v2';
+const VERSION = 'vehiculos-pwa-v4';
 const RECURSOS = [
   '/', '/index.html', '/styles.css', '/main.js', '/api.js',
   '/manifest.webmanifest', '/icons/icon-192.png', '/icons/icon-512.png',
+  '/assets/nexora-logo.png', '/assets/login-cars.jpg', '/assets/hero-showroom.jpg',
 ];
 
 self.addEventListener('install', (evento) => {

@@ -1,13 +1,13 @@
 {
-  "name": "Ventas de Vehículos - PWA Móvil",
-  "short_name": "Ventas PWA",
+  "name": "NEXORA Autos - PWA Móvil de Ventas",
+  "short_name": "NEXORA PWA",
   "description": "PWA móvil con login JWT y registro exclusivo de ventas de vehículos.",
   "id": "/",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#eef3f6",
-  "theme_color": "#103b56",
+  "background_color": "#0B0F17",
+  "theme_color": "#0B0F17",
   "lang": "es",
   "icons": [
     { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },

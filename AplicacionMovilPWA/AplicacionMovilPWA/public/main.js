@@ -10,16 +10,34 @@ import {
 // Estado en memoria únicamente (nunca se guarda el JWT en localStorage/sessionStorage).
 let sesionJwt = '';
 let sesionUsuario = '';
+let vehiculosCache = [];
+let filtroEstadoActivo = 'TODOS';
+let busquedaVehiculo = '';
 
+// Pantallas
+const screenLogin = document.querySelector('#screen-login');
+const screenApp = document.querySelector('#screen-app');
+
+// Login
 const formLogin = document.querySelector('#formLogin');
 const inputUsuario = document.querySelector('#usuario');
 const inputPassword = document.querySelector('#password');
+const btnTogglePassword = document.querySelector('#btnTogglePassword');
+const icoEyeShow = document.querySelector('#icoEyeShow');
+const icoEyeHide = document.querySelector('#icoEyeHide');
 const btnLogin = document.querySelector('#btnLogin');
-const btnLogout = document.querySelector('#btnLogout');
-const btnJwtInvalido = document.querySelector('#btnJwtInvalido');
-const badgeSesion = document.querySelector('#badgeSesion');
+const btnJwtInvalidoLogin = document.querySelector('#btnJwtInvalidoLogin');
 const mensajeLogin = document.querySelector('#mensajeLogin');
 
+// Topbar & KPIs
+const badgeSesion = document.querySelector('#badgeSesion');
+const btnLogout = document.querySelector('#btnLogout');
+const btnJwtInvalido = document.querySelector('#btnJwtInvalido');
+const kpiDisponibles = document.querySelector('#kpiDisponibles');
+const kpiVehiculos = document.querySelector('#kpiVehiculos');
+const kpiCompradores = document.querySelector('#kpiCompradores');
+
+// Venta
 const formVenta = document.querySelector('#formVenta');
 const selectVehiculo = document.querySelector('#selectVehiculo');
 const selectComprador = document.querySelector('#selectComprador');
@@ -30,20 +48,63 @@ const btnRecargar = document.querySelector('#btnRecargar');
 const mensajeVenta = document.querySelector('#mensajeVenta');
 const resultadoVenta = document.querySelector('#resultadoVenta');
 
+// Consulta
 const formConsultaVenta = document.querySelector('#formConsultaVenta');
 const inputConsultaVentaId = document.querySelector('#consultaVentaId');
 const btnConsultarVenta = document.querySelector('#btnConsultarVenta');
 const mensajeConsulta = document.querySelector('#mensajeConsulta');
 const detalleConsulta = document.querySelector('#detalleConsulta');
 
+// Catálogo
 const contenedorVehiculos = document.querySelector('#vehiculos');
 const contadorVehiculos = document.querySelector('#contador');
+const chipsFiltro = document.querySelector('#chipsFiltro');
+const inputBuscarVehiculo = document.querySelector('#inputBuscarVehiculo');
 const conexion = document.querySelector('#conexion');
+
+// Navegación
+const navItems = document.querySelectorAll('.bottom-nav .nav-item');
+const tabViews = document.querySelectorAll('.tab-view');
 
 const moneda = new Intl.NumberFormat('es-EC', { style: 'currency', currency: 'USD' });
 
-function mostrarMensaje(elemento, texto, tipo = 'neutro') {
-  elemento.textContent = texto;
+function mostrarPantallaApp(autenticado) {
+  screenLogin.classList.toggle('oculto', autenticado);
+  screenApp.classList.toggle('oculto', !autenticado);
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+function cambiarPestana(nombreTab) {
+  tabViews.forEach((vista) => {
+    vista.classList.toggle('active', vista.dataset.tab === nombreTab);
+  });
+  navItems.forEach((btn) => {
+    const activo = btn.dataset.target === nombreTab;
+    btn.classList.toggle('active', activo);
+    if (activo) btn.setAttribute('aria-current', 'page');
+    else btn.removeAttribute('aria-current');
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+navItems.forEach((btn) => {
+  btn.addEventListener('click', () => cambiarPestana(btn.dataset.target));
+});
+
+btnTogglePassword.addEventListener('click', () => {
+  const esPass = inputPassword.type === 'password';
+  inputPassword.type = esPass ? 'text' : 'password';
+  icoEyeShow.classList.toggle('oculto', esPass);
+  icoEyeHide.classList.toggle('oculto', !esPass);
+});
+
+function mostrarMensajeLogin(textoMsg, tipo = 'neutro') {
+  mensajeLogin.textContent = textoMsg;
+  mensajeLogin.className = `mensaje-dark ${tipo}`;
+}
+
+function mostrarMensaje(elemento, textoMsg, tipo = 'neutro') {
+  elemento.textContent = textoMsg;
   elemento.className = `mensaje ${tipo}`;
 }
 
@@ -64,6 +125,15 @@ function formatoPrecio(valor) {
   return Number.isFinite(numero) ? moneda.format(numero) : texto(valor);
 }
 
+function claseEstadoSemantica(estadoRaw) {
+  const e = String(estadoRaw || '').toUpperCase();
+  if (e === 'DISPONIBLE' || e === 'COMPLETADA') return 'disponible';
+  if (e === 'RESERVADO' || e === 'PENDIENTE' || e === 'EN_REVISION') return 'reservado';
+  if (e === 'VENDIDO') return 'vendido';
+  if (e === 'FALLIDA') return 'error';
+  return 'vendido';
+}
+
 function agregarDato(grilla, etiqueta, valor, extra = '') {
   const grupo = crearElemento('div', extra);
   grupo.append(
@@ -77,19 +147,19 @@ function pintarTarjetaVenta(contenedor, venta, codigoHttp) {
   contenedor.replaceChildren();
   contenedor.classList.remove('oculto');
 
-  const cabecera = crearElemento('div', 'vehiculo-cabecera');
+  const cabecera = crearElemento('div', 'receipt-head');
   const titulo = crearElemento('div');
   titulo.append(
-    crearElemento('h3', 'vehiculo-titulo', `Venta #${texto(venta.id)}`),
-    crearElemento('span', 'vehiculo-id', `Operación: ${texto(venta.operacionId)}`),
+    crearElemento('h3', 'receipt-title', `Venta #${texto(venta.id)}`),
+    crearElemento('span', 'receipt-op', `Operación: ${texto(venta.operacionId)}`),
   );
   const estadoStr = texto(venta.estado);
-  const claseEstado = estadoStr === 'COMPLETADA' ? 'disponible' : estadoStr === 'FALLIDA' ? 'vendido' : '';
-  cabecera.append(titulo, crearElemento('span', `estado ${claseEstado}`, `${estadoStr} (HTTP ${codigoHttp})`));
+  const claseEst = claseEstadoSemantica(estadoStr);
+  cabecera.append(titulo, crearElemento('span', `estado ${claseEst}`, `${estadoStr} · HTTP ${codigoHttp}`));
 
-  const grilla = crearElemento('div', 'datos');
-  agregarDato(grilla, 'Vehículo ID', texto(venta.vehiculoId));
-  agregarDato(grilla, 'Comprador ID', texto(venta.compradorId));
+  const grilla = crearElemento('div', 'receipt-body');
+  agregarDato(grilla, 'Vehículo ID', `#${texto(venta.vehiculoId)}`);
+  agregarDato(grilla, 'Comprador ID', `#${texto(venta.compradorId)}`);
   agregarDato(grilla, 'Precio acordado', formatoPrecio(venta.precioAcordado), 'dato-precio');
   agregarDato(grilla, 'Moneda', texto(venta.moneda));
   agregarDato(grilla, 'Notificación', texto(venta.notificacion));
@@ -103,7 +173,6 @@ function pintarSelectVehiculos(vehiculos) {
   selectVehiculo.replaceChildren();
   selectVehiculo.append(crearElemento('option', '', '— Seleccione un vehículo —'));
 
-  // Ordenar disponibles primero para agilizar el flujo móvil
   const ordenados = [...vehiculos].sort((a, b) => {
     const aDisp = String(a.estado).toUpperCase() === 'DISPONIBLE' ? 0 : 1;
     const bDisp = String(b.estado).toUpperCase() === 'DISPONIBLE' ? 0 : 1;
@@ -139,45 +208,94 @@ function pintarSelectCompradores(compradores) {
 }
 
 function pintarListadoVehiculos(vehiculos) {
+  vehiculosCache = vehiculos;
+  const q = busquedaVehiculo.trim().toLowerCase();
+
+  const filtrados = vehiculos.filter((v) => {
+    const okEstado =
+      filtroEstadoActivo === 'TODOS' ||
+      String(v.estado || '').toUpperCase() === filtroEstadoActivo;
+    const okTexto =
+      !q ||
+      String(v.marca || '').toLowerCase().includes(q) ||
+      String(v.modelo || '').toLowerCase().includes(q) ||
+      String(v.placa || '').toLowerCase().includes(q);
+    return okEstado && okTexto;
+  });
+
   contenedorVehiculos.replaceChildren();
-  contadorVehiculos.textContent = `${vehiculos.length} vehículo${vehiculos.length === 1 ? '' : 's'}`;
+  contadorVehiculos.textContent = `${filtrados.length} de ${vehiculos.length}`;
 
   if (vehiculos.length === 0) {
-    contenedorVehiculos.append(crearElemento('p', 'vacio', 'HTTP 200: no hay vehículos registrados.'));
+    contenedorVehiculos.append(crearElemento('div', 'vacio', 'HTTP 200: no hay vehículos registrados.'));
+    return;
+  }
+  if (filtrados.length === 0) {
+    contenedorVehiculos.append(crearElemento('div', 'vacio', 'No hay vehículos que coincidan con los filtros.'));
     return;
   }
 
-  for (const vehiculo of vehiculos) {
+  for (const vehiculo of filtrados) {
     const id = vehiculo.idVehiculo ?? vehiculo.id;
     const estado = texto(vehiculo.estado);
-    const esDisponible = String(estado).toUpperCase() === 'DISPONIBLE';
-    const claseEstado = esDisponible ? 'disponible' : String(estado).toUpperCase() === 'VENDIDO' ? 'vendido' : '';
+    const upper = String(estado).toUpperCase();
+    const esDisponible = upper === 'DISPONIBLE';
+    const esVendido = upper === 'VENDIDO';
+    const claseEst = claseEstadoSemantica(estado);
 
-    const tarjeta = crearElemento('article', `vehiculo${esDisponible ? ' seleccionable' : ''}`);
-    const cabecera = crearElemento('div', 'vehiculo-cabecera');
-    const encabezado = crearElemento('div');
-    encabezado.append(
-      crearElemento('h3', 'vehiculo-titulo', `${texto(vehiculo.marca)} ${texto(vehiculo.modelo)}`),
-      crearElemento('span', 'vehiculo-id', `ID: ${texto(id)}`),
+    const tarjeta = crearElemento(
+      'article',
+      `vehiculo${esDisponible ? ' seleccionable' : ''}${esVendido ? ' es-vendido' : ''}`,
     );
-    cabecera.append(encabezado, crearElemento('span', `estado ${claseEstado}`, estado));
+
+    const media = crearElemento('div', 'vehiculo-media');
+    media.append(
+      crearElemento('span', 'vehiculo-id', `ID #${texto(id)} · ${texto(vehiculo.placa)}`),
+      crearElemento('span', `estado ${claseEst}`, estado),
+    );
+
+    const cuerpo = crearElemento('div', 'vehiculo-body');
+    cuerpo.append(crearElemento('h3', 'vehiculo-titulo', `${texto(vehiculo.marca)} ${texto(vehiculo.modelo)}`));
 
     const grilla = crearElemento('div', 'datos');
-    agregarDato(grilla, 'Placa', texto(vehiculo.placa));
     agregarDato(grilla, 'Año', texto(vehiculo.anio));
     agregarDato(grilla, 'Color', texto(vehiculo.color));
+    agregarDato(grilla, 'Chasis', texto(vehiculo.chasis));
     agregarDato(grilla, 'Precio', formatoPrecio(vehiculo.precio), 'dato-precio');
-    tarjeta.append(cabecera, grilla);
+    cuerpo.append(grilla);
+
+    tarjeta.append(media, cuerpo);
 
     tarjeta.addEventListener('click', () => {
       selectVehiculo.value = String(id);
-      mostrarMensaje(mensajeVenta, `Vehículo #${id} (${texto(vehiculo.marca)} ${texto(vehiculo.modelo)}) seleccionado.`, 'neutro');
-      formVenta.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      mostrarMensaje(
+        mensajeVenta,
+        `Vehículo #${id} (${texto(vehiculo.marca)} ${texto(vehiculo.modelo)}) seleccionado para venta.`,
+        esVendido ? 'aviso' : 'neutro',
+      );
+      cambiarPestana('vender');
     });
 
     contenedorVehiculos.append(tarjeta);
   }
 }
+
+chipsFiltro.addEventListener('click', (e) => {
+  const btn = e.target.closest('.chip');
+  if (!btn) return;
+  filtroEstadoActivo = btn.dataset.estado || 'TODOS';
+  chipsFiltro.querySelectorAll('.chip').forEach((c) => c.classList.toggle('active', c === btn));
+  if (vehiculosCache.length > 0 || sesionJwt) {
+    pintarListadoVehiculos(vehiculosCache);
+  }
+});
+
+inputBuscarVehiculo.addEventListener('input', (e) => {
+  busquedaVehiculo = e.target.value;
+  if (vehiculosCache.length > 0 || sesionJwt) {
+    pintarListadoVehiculos(vehiculosCache);
+  }
+});
 
 async function cargarCatalogos() {
   btnRecargar.disabled = true;
@@ -190,18 +308,40 @@ async function cargarCatalogos() {
     pintarSelectVehiculos(resVeh.vehiculos);
     pintarSelectCompradores(resComp.compradores);
     const disponibles = resVeh.vehiculos.filter((v) => String(v.estado).toUpperCase() === 'DISPONIBLE').length;
+    kpiDisponibles.textContent = String(disponibles);
+    kpiVehiculos.textContent = String(resVeh.vehiculos.length);
+    kpiCompradores.textContent = String(resComp.compradores.length);
+
     mostrarMensaje(
       mensajeVenta,
-      `Datos actualizados (HTTP 200): ${resVeh.vehiculos.length} vehículo(s) (${disponibles} disponible/s) y ${resComp.compradores.length} comprador(es).`,
+      `HTTP 200: ${resVeh.vehiculos.length} vehículo(s) (${disponibles} disponible/s) y ${resComp.compradores.length} comprador(es) cargados.`,
       'neutro',
     );
   } catch (error) {
     mostrarMensaje(mensajeVenta, error.message, 'error');
-    contenedorVehiculos.replaceChildren(crearElemento('p', 'vacio', 'No se pudieron cargar los datos del servicio.'));
-    contadorVehiculos.textContent = '0 vehículos';
+    vehiculosCache = [];
+    kpiDisponibles.textContent = '0';
+    kpiVehiculos.textContent = '0';
+    kpiCompradores.textContent = '0';
+    contenedorVehiculos.replaceChildren(crearElemento('div', 'vacio', 'No se pudieron cargar los datos del servicio.'));
+    contadorVehiculos.textContent = '0';
   } finally {
     btnRecargar.disabled = false;
   }
+}
+
+function activarModoJwtInvalido() {
+  sesionJwt = 'jwt_invalido_o_vencido_prueba_401';
+  sesionUsuario = 'prueba-401';
+  badgeSesion.textContent = 'JWT inválido (401)';
+  badgeSesion.className = 'session-pill sesion-alerta';
+  mostrarPantallaApp(true);
+  cambiarPestana('vender');
+  mostrarMensaje(
+    mensajeVenta,
+    'Se cargó un JWT inválido en memoria. Intente recargar o registrar una venta para comprobar HTTP 401.',
+    'error',
+  );
 }
 
 // ==================== EVENTOS ====================
@@ -212,65 +352,70 @@ formLogin.addEventListener('submit', async (evento) => {
   const password = inputPassword.value;
 
   if (!usuario || !password) {
-    mostrarMensaje(mensajeLogin, 'Ingrese usuario y contraseña para autenticarse.', 'error');
+    mostrarMensajeLogin('Ingrese usuario y contraseña para autenticarse.', 'aviso');
     return;
   }
 
   btnLogin.disabled = true;
-  mostrarMensaje(mensajeLogin, 'Autenticando mediante POST /oauth/token vía NGINX…', 'neutro');
+  btnLogin.textContent = 'Autenticando…';
+  mostrarMensajeLogin('Validando credenciales en POST /oauth/token vía NGINX…', 'neutro');
+
   try {
     const res = await iniciarSesion(usuario, password);
     sesionJwt = res.accessToken;
     sesionUsuario = usuario;
     inputPassword.value = '';
-    btnLogout.disabled = false;
-    badgeSesion.textContent = `Activa: ${sesionUsuario}`;
-    badgeSesion.className = 'contador sesion-ok';
+    inputPassword.type = 'password';
+    icoEyeShow.classList.remove('oculto');
+    icoEyeHide.classList.add('oculto');
+
+    badgeSesion.textContent = sesionUsuario;
+    badgeSesion.className = 'session-pill sesion-ok';
+    inputIdempotency.value = generarClaveIdempotente();
+
+    mostrarPantallaApp(true);
+    cambiarPestana('vender');
     mostrarMensaje(
-      mensajeLogin,
-      `HTTP ${res.codigoHttp}: Sesión iniciada para '${sesionUsuario}' (JWT guardado solo en memoria; expira en ${res.expiresIn || 1800} s).`,
+      mensajeVenta,
+      `HTTP ${res.codigoHttp}: Sesión iniciada para '${sesionUsuario}' (JWT en memoria; expira en ${res.expiresIn || 1800} s). Cargando datos…`,
       'exito',
     );
-    inputIdempotency.value = generarClaveIdempotente();
     await cargarCatalogos();
   } catch (error) {
     sesionJwt = '';
     sesionUsuario = '';
-    btnLogout.disabled = true;
-    badgeSesion.textContent = 'Sin sesión';
-    badgeSesion.className = 'contador';
-    mostrarMensaje(mensajeLogin, error.message, 'error');
+    mostrarMensajeLogin(error.message, 'error');
   } finally {
     btnLogin.disabled = false;
+    btnLogin.textContent = 'Iniciar sesión';
   }
 });
+
+btnJwtInvalidoLogin.addEventListener('click', activarModoJwtInvalido);
+btnJwtInvalido.addEventListener('click', activarModoJwtInvalido);
 
 btnLogout.addEventListener('click', () => {
   sesionJwt = '';
   sesionUsuario = '';
-  btnLogout.disabled = true;
+  vehiculosCache = [];
+  busquedaVehiculo = '';
+  filtroEstadoActivo = 'TODOS';
+  inputBuscarVehiculo.value = '';
+  kpiDisponibles.textContent = '0';
+  kpiVehiculos.textContent = '0';
+  kpiCompradores.textContent = '0';
+
   badgeSesion.textContent = 'Sin sesión';
-  badgeSesion.className = 'contador';
+  badgeSesion.className = 'session-pill';
   selectVehiculo.replaceChildren(crearElemento('option', '', '— Inicie sesión para cargar vehículos —'));
   selectComprador.replaceChildren(crearElemento('option', '', '— Inicie sesión para cargar compradores —'));
-  contenedorVehiculos.replaceChildren(crearElemento('div', 'vacio', 'Sesión cerrada. Inicie sesión para continuar.'));
-  contadorVehiculos.textContent = '0 vehículos';
+  contenedorVehiculos.replaceChildren(crearElemento('div', 'vacio', 'Sesión cerrada.'));
+  contadorVehiculos.textContent = '0';
   resultadoVenta.classList.add('oculto');
   detalleConsulta.classList.add('oculto');
-  mostrarMensaje(mensajeLogin, 'Sesión cerrada y JWT eliminado de memoria.', 'neutro');
-});
 
-btnJwtInvalido.addEventListener('click', () => {
-  sesionJwt = 'jwt_invalido_o_vencido_prueba_401';
-  sesionUsuario = 'prueba-401';
-  btnLogout.disabled = false;
-  badgeSesion.textContent = 'JWT inválido (prueba)';
-  badgeSesion.className = 'contador sesion-alerta';
-  mostrarMensaje(
-    mensajeLogin,
-    'Se cargó un JWT inválido en memoria. Intente recargar datos o registrar una venta para comprobar HTTP 401.',
-    'error',
-  );
+  mostrarPantallaApp(false);
+  mostrarMensajeLogin('Sesión cerrada y JWT eliminado de memoria.', 'neutro');
 });
 
 btnNuevaClave.addEventListener('click', () => {
@@ -289,11 +434,11 @@ formVenta.addEventListener('submit', async (evento) => {
   const idempotencyKey = inputIdempotency.value.trim();
 
   if (!vehiculoId || !compradorId) {
-    mostrarMensaje(mensajeVenta, 'Seleccione un vehículo y un comprador antes de registrar la venta.', 'error');
+    mostrarMensaje(mensajeVenta, 'Seleccione un vehículo y un comprador antes de registrar la venta.', 'aviso');
     return;
   }
   if (!/^[A-Za-z0-9_-]{8,100}$/.test(idempotencyKey)) {
-    mostrarMensaje(mensajeVenta, 'La Idempotency-Key debe tener entre 8 y 100 caracteres (letras, números, - o _).', 'error');
+    mostrarMensaje(mensajeVenta, 'La Idempotency-Key debe tener entre 8 y 100 caracteres (letras, números, - o _).', 'aviso');
     return;
   }
 
@@ -321,7 +466,7 @@ formConsultaVenta.addEventListener('submit', async (evento) => {
   evento.preventDefault();
   const ventaId = inputConsultaVentaId.value.trim();
   if (!ventaId) {
-    mostrarMensaje(mensajeConsulta, 'Ingrese el ID de la venta a consultar.', 'error');
+    mostrarMensaje(mensajeConsulta, 'Ingrese el ID de la venta a consultar.', 'aviso');
     return;
   }
 
@@ -343,11 +488,10 @@ formConsultaVenta.addEventListener('submit', async (evento) => {
   }
 });
 
-// Inicializar clave idempotente sugerida
 inputIdempotency.value = generarClaveIdempotente();
 
 function actualizarConexion() {
-  conexion.textContent = navigator.onLine ? 'Navegador conectado' : 'Sin conexión de red';
+  conexion.textContent = navigator.onLine ? 'En línea' : 'Sin conexión';
 }
 window.addEventListener('online', actualizarConexion);
 window.addEventListener('offline', actualizarConexion);
