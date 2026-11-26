@@ -14,7 +14,6 @@ export default function LoginScreen({
   onChangePassword,
   onTogglePassword,
   onSubmit,
-  onSimularTokenInvalido,
 }) {
   return (
     <div className="luxury-login-page">
@@ -52,6 +51,7 @@ export default function LoginScreen({
                     id="usuario"
                     className="luxury-input with-icon"
                     type="text"
+                    maxLength={60}
                     autoComplete="username"
                     placeholder="Ej. consulta01"
                     value={usuario}
@@ -72,6 +72,7 @@ export default function LoginScreen({
                     id="password"
                     className="luxury-input with-icon with-eye"
                     type={mostrarPassword ? 'text' : 'password'}
+                    maxLength={100}
                     autoComplete="current-password"
                     placeholder="Ingrese su contraseña"
                     value={password}
@@ -93,15 +94,6 @@ export default function LoginScreen({
                 <span className="luxury-hint-text">
                   Cuentas: <code>consulta01</code> · <code>operador01</code>
                 </span>
-                <button
-                  type="button"
-                  className="luxury-text-link"
-                  disabled={cargando}
-                  onClick={onSimularTokenInvalido}
-                  title="Simular rechazo con token inválido"
-                >
-                  Probar JWT inválido (401)
-                </button>
               </div>
 
               {errorAuth && (

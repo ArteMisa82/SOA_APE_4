@@ -2,8 +2,10 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class CrearComprador(BaseModel):
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
-    documento: str = Field(min_length=3, max_length=30)
-    nombre: str = Field(min_length=2, max_length=120)
+    documento: str = Field(min_length=3, max_length=30,
+                           pattern=r"^[A-Za-z0-9-]+$")
+    nombre: str = Field(min_length=2, max_length=120,
+                        pattern=r"^[A-Za-zÁÉÍÓÚáéíóúÑñÜü0-9 .'-]+$")
     correo: str = Field(min_length=5, max_length=200,
                         pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 

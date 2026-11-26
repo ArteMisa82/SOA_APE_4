@@ -16,6 +16,7 @@ export default function VentasToolbar({
         <Search size={16} aria-hidden="true" />
         <input
           type="search"
+          maxLength={60}
           aria-label="Buscar ventas por ID, vehículo, comprador u operación"
           placeholder="Buscar por ID de venta, vehículo, comprador u operación…"
           value={busquedaVenta}

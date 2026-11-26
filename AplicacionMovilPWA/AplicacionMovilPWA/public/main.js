@@ -13,6 +13,8 @@ let sesionUsuario = '';
 let vehiculosCache = [];
 let filtroEstadoActivo = 'TODOS';
 let busquedaVehiculo = '';
+let paginaCatalogo = 1;
+let porPaginaCatalogo = 6;
 
 // Pantallas
 const screenLogin = document.querySelector('#screen-login');
@@ -26,13 +28,11 @@ const btnTogglePassword = document.querySelector('#btnTogglePassword');
 const icoEyeShow = document.querySelector('#icoEyeShow');
 const icoEyeHide = document.querySelector('#icoEyeHide');
 const btnLogin = document.querySelector('#btnLogin');
-const btnJwtInvalidoLogin = document.querySelector('#btnJwtInvalidoLogin');
 const mensajeLogin = document.querySelector('#mensajeLogin');
 
 // Topbar & KPIs
 const badgeSesion = document.querySelector('#badgeSesion');
 const btnLogout = document.querySelector('#btnLogout');
-const btnJwtInvalido = document.querySelector('#btnJwtInvalido');
 const kpiDisponibles = document.querySelector('#kpiDisponibles');
 const kpiVehiculos = document.querySelector('#kpiVehiculos');
 const kpiCompradores = document.querySelector('#kpiCompradores');
@@ -60,6 +60,7 @@ const contenedorVehiculos = document.querySelector('#vehiculos');
 const contadorVehiculos = document.querySelector('#contador');
 const chipsFiltro = document.querySelector('#chipsFiltro');
 const inputBuscarVehiculo = document.querySelector('#inputBuscarVehiculo');
+const paginacionCatalogo = document.querySelector('#paginacionCatalogo');
 const conexion = document.querySelector('#conexion');
 
 // Navegación
@@ -207,6 +208,115 @@ function pintarSelectCompradores(compradores) {
   }
 }
 
+function construirPaginasMovil(actual, total) {
+  if (total <= 5) {
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+  const paginas = [1];
+  const inicio = Math.max(2, actual - 1);
+  const fin = Math.min(total - 1, actual + 1);
+  if (inicio > 2) paginas.push('ellipsis-start');
+  for (let p = inicio; p <= fin; p += 1) paginas.push(p);
+  if (fin < total - 1) paginas.push('ellipsis-end');
+  paginas.push(total);
+  return paginas;
+}
+
+function pintarPaginacionCatalogo(totalItems, totalPaginas) {
+  if (!paginacionCatalogo) return;
+  paginacionCatalogo.replaceChildren();
+
+  if (totalItems <= 0) {
+    paginacionCatalogo.classList.add('oculto');
+    return;
+  }
+
+  paginacionCatalogo.classList.remove('oculto');
+
+  const desde = (paginaCatalogo - 1) * porPaginaCatalogo + 1;
+  const hasta = Math.min(paginaCatalogo * porPaginaCatalogo, totalItems);
+
+  const info = crearElemento('div', 'pagination-info');
+  const resumen = crearElemento('span', 'pagination-summary tabular');
+  resumen.append(
+    document.createTextNode('Mostrando '),
+    crearElemento('strong', '', `${desde}–${hasta}`),
+    document.createTextNode(' de '),
+    crearElemento('strong', '', String(totalItems)),
+    document.createTextNode(' vehículo(s)'),
+  );
+
+  const labelTam = crearElemento('label', 'pagination-size');
+  labelTam.append(crearElemento('span', '', 'Por página:'));
+  const selTam = document.createElement('select');
+  selTam.className = 'pagination-select';
+  selTam.setAttribute('aria-label', 'Vehículos por página');
+  for (const optVal of [6, 10, 15, 25]) {
+    const opt = document.createElement('option');
+    opt.value = String(optVal);
+    opt.textContent = String(optVal);
+    if (optVal === porPaginaCatalogo) opt.selected = true;
+    selTam.append(opt);
+  }
+  selTam.addEventListener('change', (e) => {
+    porPaginaCatalogo = Number(e.target.value) || 6;
+    paginaCatalogo = 1;
+    pintarListadoVehiculos(vehiculosCache);
+  });
+  labelTam.append(selTam);
+  info.append(resumen, labelTam);
+
+  const controles = crearElemento('div', 'pagination-controls');
+
+  const btnAnt = crearElemento('button', 'pagination-btn pagination-nav', '‹ Anterior');
+  btnAnt.type = 'button';
+  btnAnt.disabled = paginaCatalogo <= 1;
+  btnAnt.addEventListener('click', () => {
+    if (paginaCatalogo > 1) {
+      paginaCatalogo -= 1;
+      pintarListadoVehiculos(vehiculosCache);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  });
+
+  const paginasWrap = crearElemento('div', 'pagination-pages');
+  for (const item of construirPaginasMovil(paginaCatalogo, totalPaginas)) {
+    if (typeof item === 'string') {
+      paginasWrap.append(crearElemento('span', 'pagination-ellipsis', '…'));
+    } else {
+      const btnNum = crearElemento(
+        'button',
+        `pagination-btn pagination-num tabular${item === paginaCatalogo ? ' active' : ''}`,
+        String(item),
+      );
+      btnNum.type = 'button';
+      if (item === paginaCatalogo) btnNum.setAttribute('aria-current', 'page');
+      btnNum.addEventListener('click', () => {
+        if (item !== paginaCatalogo) {
+          paginaCatalogo = item;
+          pintarListadoVehiculos(vehiculosCache);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      });
+      paginasWrap.append(btnNum);
+    }
+  }
+
+  const btnSig = crearElemento('button', 'pagination-btn pagination-nav', 'Siguiente ›');
+  btnSig.type = 'button';
+  btnSig.disabled = paginaCatalogo >= totalPaginas;
+  btnSig.addEventListener('click', () => {
+    if (paginaCatalogo < totalPaginas) {
+      paginaCatalogo += 1;
+      pintarListadoVehiculos(vehiculosCache);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  });
+
+  controles.append(btnAnt, paginasWrap, btnSig);
+  paginacionCatalogo.append(info, controles);
+}
+
 function pintarListadoVehiculos(vehiculos) {
   vehiculosCache = vehiculos;
   const q = busquedaVehiculo.trim().toLowerCase();
@@ -228,14 +338,21 @@ function pintarListadoVehiculos(vehiculos) {
 
   if (vehiculos.length === 0) {
     contenedorVehiculos.append(crearElemento('div', 'vacio', 'HTTP 200: no hay vehículos registrados.'));
+    pintarPaginacionCatalogo(0, 1);
     return;
   }
   if (filtrados.length === 0) {
     contenedorVehiculos.append(crearElemento('div', 'vacio', 'No hay vehículos que coincidan con los filtros.'));
+    pintarPaginacionCatalogo(0, 1);
     return;
   }
 
-  for (const vehiculo of filtrados) {
+  const totalPaginas = Math.max(1, Math.ceil(filtrados.length / porPaginaCatalogo));
+  paginaCatalogo = Math.min(Math.max(1, paginaCatalogo), totalPaginas);
+  const inicio = (paginaCatalogo - 1) * porPaginaCatalogo;
+  const paginados = filtrados.slice(inicio, inicio + porPaginaCatalogo);
+
+  for (const vehiculo of paginados) {
     const id = vehiculo.idVehiculo ?? vehiculo.id;
     const estado = texto(vehiculo.estado);
     const upper = String(estado).toUpperCase();
@@ -278,12 +395,15 @@ function pintarListadoVehiculos(vehiculos) {
 
     contenedorVehiculos.append(tarjeta);
   }
+
+  pintarPaginacionCatalogo(filtrados.length, totalPaginas);
 }
 
 chipsFiltro.addEventListener('click', (e) => {
   const btn = e.target.closest('.chip');
   if (!btn) return;
   filtroEstadoActivo = btn.dataset.estado || 'TODOS';
+  paginaCatalogo = 1;
   chipsFiltro.querySelectorAll('.chip').forEach((c) => c.classList.toggle('active', c === btn));
   if (vehiculosCache.length > 0 || sesionJwt) {
     pintarListadoVehiculos(vehiculosCache);
@@ -292,6 +412,7 @@ chipsFiltro.addEventListener('click', (e) => {
 
 inputBuscarVehiculo.addEventListener('input', (e) => {
   busquedaVehiculo = e.target.value;
+  paginaCatalogo = 1;
   if (vehiculosCache.length > 0 || sesionJwt) {
     pintarListadoVehiculos(vehiculosCache);
   }
@@ -325,23 +446,10 @@ async function cargarCatalogos() {
     kpiCompradores.textContent = '0';
     contenedorVehiculos.replaceChildren(crearElemento('div', 'vacio', 'No se pudieron cargar los datos del servicio.'));
     contadorVehiculos.textContent = '0';
+    pintarPaginacionCatalogo(0, 1);
   } finally {
     btnRecargar.disabled = false;
   }
-}
-
-function activarModoJwtInvalido() {
-  sesionJwt = 'jwt_invalido_o_vencido_prueba_401';
-  sesionUsuario = 'prueba-401';
-  badgeSesion.textContent = 'JWT inválido (401)';
-  badgeSesion.className = 'session-pill sesion-alerta';
-  mostrarPantallaApp(true);
-  cambiarPestana('vender');
-  mostrarMensaje(
-    mensajeVenta,
-    'Se cargó un JWT inválido en memoria. Intente recargar o registrar una venta para comprobar HTTP 401.',
-    'error',
-  );
 }
 
 // ==================== EVENTOS ====================
@@ -391,15 +499,13 @@ formLogin.addEventListener('submit', async (evento) => {
   }
 });
 
-btnJwtInvalidoLogin.addEventListener('click', activarModoJwtInvalido);
-btnJwtInvalido.addEventListener('click', activarModoJwtInvalido);
-
 btnLogout.addEventListener('click', () => {
   sesionJwt = '';
   sesionUsuario = '';
   vehiculosCache = [];
   busquedaVehiculo = '';
   filtroEstadoActivo = 'TODOS';
+  paginaCatalogo = 1;
   inputBuscarVehiculo.value = '';
   kpiDisponibles.textContent = '0';
   kpiVehiculos.textContent = '0';
@@ -411,6 +517,7 @@ btnLogout.addEventListener('click', () => {
   selectComprador.replaceChildren(crearElemento('option', '', '— Inicie sesión para cargar compradores —'));
   contenedorVehiculos.replaceChildren(crearElemento('div', 'vacio', 'Sesión cerrada.'));
   contadorVehiculos.textContent = '0';
+  pintarPaginacionCatalogo(0, 1);
   resultadoVenta.classList.add('oculto');
   detalleConsulta.classList.add('oculto');
 

@@ -29,13 +29,8 @@
             lblPassword = new Label();
             txtPassword = new TextBox();
             chkMostrarPass = new CheckBox();
-            lblGateway = new Label();
-            txtGateway = new TextBox();
-            lblClientSecret = new Label();
-            txtClientSecret = new TextBox();
             lblLoginError = new Label();
             btnIniciarSesion = new Button();
-            btnTokenInvalidoLogin = new Button();
             lblLoginFooter = new Label();
 
             pnlLoginRight = new CoverImagePanel();
@@ -64,7 +59,6 @@
 
             pnlSidebarFooter = new Panel();
             lblSesion = new Label();
-            btnTokenInvalido = new Button();
             btnCerrarSesion = new Button();
             lblSidebarNota = new Label();
 
@@ -100,6 +94,7 @@
             btnLimpiarVehiculos = new Button();
             pnlGridVehWrap = new Panel();
             dgvVehiculos = new DataGridView();
+            pagVehiculos = new PaginationBar(10);
 
             // Módulo 2: Compradores
             pnlModCompradores = new Panel();
@@ -116,6 +111,7 @@
             btnLimpiarCompradores = new Button();
             pnlGridCompWrap = new Panel();
             dgvCompradores = new DataGridView();
+            pagCompradores = new PaginationBar(10);
 
             // Módulo 3: Ventas (Solo lectura)
             pnlModVentas = new Panel();
@@ -125,6 +121,7 @@
             btnLimpiarVentas = new Button();
             pnlGridVenWrap = new Panel();
             dgvVentas = new DataGridView();
+            pagVentas = new PaginationBar(10);
 
             // Barra inferior de estado
             pnlEstado = new Panel();
@@ -148,8 +145,8 @@
             pnlLoginLeft.Width = 500;
             pnlLoginLeft.BackColor = Theme.Graphite920;
 
-            pnlLoginCard.Size = new Size(390, 620);
-            pnlLoginCard.Location = new Point(55, 36);
+            pnlLoginCard.Size = new Size(390, 504);
+            pnlLoginCard.Location = new Point(55, 80);
             pnlLoginCard.BackColor = Theme.Graphite920;
 
             picLoginLogo.Size = new Size(250, 108);
@@ -177,6 +174,7 @@
             lblUsuario.Text = "Usuario";
             txtUsuario.Location = new Point(0, 220);
             txtUsuario.Size = new Size(390, 28);
+            txtUsuario.MaxLength = 60;
             txtUsuario.PlaceholderText = "Ej. admin01 / operador01";
             Theme.StyleDarkInput(txtUsuario);
 
@@ -187,6 +185,7 @@
             lblPassword.Text = "Contraseña";
             txtPassword.Location = new Point(0, 278);
             txtPassword.Size = new Size(390, 28);
+            txtPassword.MaxLength = 100;
             txtPassword.UseSystemPasswordChar = true;
             txtPassword.PlaceholderText = "Ingrese su contraseña";
             Theme.StyleDarkInput(txtPassword);
@@ -194,52 +193,26 @@
             chkMostrarPass.AutoSize = true;
             chkMostrarPass.ForeColor = Theme.TextOnDarkMuted;
             chkMostrarPass.Font = Theme.FontSmall;
-            chkMostrarPass.Location = new Point(0, 310);
+            chkMostrarPass.Location = new Point(0, 314);
             chkMostrarPass.Text = "Mostrar contraseña";
-
-            lblGateway.AutoSize = true;
-            lblGateway.Font = Theme.FontSmallBold;
-            lblGateway.ForeColor = Color.FromArgb(203, 213, 225);
-            lblGateway.Location = new Point(0, 340);
-            lblGateway.Text = "Gateway NGINX";
-            txtGateway.Location = new Point(0, 360);
-            txtGateway.Size = new Size(188, 28);
-            txtGateway.Text = "http://127.0.0.1:8090";
-            Theme.StyleDarkInput(txtGateway);
-
-            lblClientSecret.AutoSize = true;
-            lblClientSecret.Font = Theme.FontSmallBold;
-            lblClientSecret.ForeColor = Color.FromArgb(203, 213, 225);
-            lblClientSecret.Location = new Point(202, 340);
-            lblClientSecret.Text = "Client Secret (o env)";
-            txtClientSecret.Location = new Point(202, 360);
-            txtClientSecret.Size = new Size(188, 28);
-            txtClientSecret.UseSystemPasswordChar = true;
-            txtClientSecret.PlaceholderText = "Opcional si usa env";
-            Theme.StyleDarkInput(txtClientSecret);
 
             lblLoginError.AutoSize = false;
             lblLoginError.Size = new Size(390, 42);
-            lblLoginError.Location = new Point(0, 398);
+            lblLoginError.Location = new Point(0, 344);
             lblLoginError.Font = Theme.FontSmallBold;
             lblLoginError.ForeColor = Color.FromArgb(254, 202, 202);
             lblLoginError.BackColor = Color.FromArgb(52, 22, 26);
             lblLoginError.Padding = new Padding(10, 6, 10, 6);
             lblLoginError.Visible = false;
 
-            btnIniciarSesion.Location = new Point(0, 450);
+            btnIniciarSesion.Location = new Point(0, 398);
             btnIniciarSesion.Size = new Size(390, 44);
             btnIniciarSesion.Text = "Iniciar sesión";
             Theme.StyleCopperButton(btnIniciarSesion);
 
-            btnTokenInvalidoLogin.Location = new Point(0, 504);
-            btnTokenInvalidoLogin.Size = new Size(390, 34);
-            btnTokenInvalidoLogin.Text = "Probar JWT inválido (HTTP 401)";
-            Theme.StyleDarkButton(btnTokenInvalidoLogin, danger: true);
-
             lblLoginFooter.AutoSize = false;
             lblLoginFooter.Size = new Size(390, 38);
-            lblLoginFooter.Location = new Point(0, 550);
+            lblLoginFooter.Location = new Point(0, 454);
             lblLoginFooter.Font = new Font("Segoe UI", 8F);
             lblLoginFooter.ForeColor = Theme.Ink500;
             lblLoginFooter.TextAlign = ContentAlignment.MiddleCenter;
@@ -249,8 +222,7 @@
             {
                 picLoginLogo, lblLoginTitle, lblLoginSub,
                 lblUsuario, txtUsuario, lblPassword, txtPassword, chkMostrarPass,
-                lblGateway, txtGateway, lblClientSecret, txtClientSecret,
-                lblLoginError, btnIniciarSesion, btnTokenInvalidoLogin, lblLoginFooter
+                lblLoginError, btnIniciarSesion, lblLoginFooter
             });
             pnlLoginLeft.Controls.Add(pnlLoginCard);
 
@@ -323,7 +295,7 @@
             ConfigurarNavItem(pnlNavVentas, pnlIndVentas, btnNavVentas, "  Ventas (Solo consulta)", false);
 
             pnlSidebarFooter.Dock = DockStyle.Bottom;
-            pnlSidebarFooter.Height = 166;
+            pnlSidebarFooter.Height = 132;
             pnlSidebarFooter.BackColor = Theme.Graphite950;
 
             lblSesion.AutoSize = false;
@@ -335,26 +307,21 @@
             lblSesion.TextAlign = ContentAlignment.MiddleCenter;
             lblSesion.Text = "Sin sesión activa";
 
-            btnTokenInvalido.Location = new Point(16, 48);
-            btnTokenInvalido.Size = new Size(216, 30);
-            btnTokenInvalido.Text = "Probar JWT inválido (401)";
-            Theme.StyleDarkButton(btnTokenInvalido, danger: true);
-
-            btnCerrarSesion.Location = new Point(16, 84);
-            btnCerrarSesion.Size = new Size(216, 30);
+            btnCerrarSesion.Location = new Point(16, 48);
+            btnCerrarSesion.Size = new Size(216, 32);
             btnCerrarSesion.Text = "Cerrar sesión";
             Theme.StyleDarkButton(btnCerrarSesion, danger: false);
 
             lblSidebarNota.AutoSize = false;
             lblSidebarNota.Size = new Size(216, 38);
-            lblSidebarNota.Location = new Point(16, 122);
+            lblSidebarNota.Location = new Point(16, 88);
             lblSidebarNota.Font = new Font("Segoe UI", 7.8F);
             lblSidebarNota.ForeColor = Theme.Ink500;
             lblSidebarNota.Text = "Gateway único NGINX (:8090)\nVentas exclusivas en PWA móvil";
 
             pnlSidebarFooter.Controls.AddRange(new Control[]
             {
-                lblSesion, btnTokenInvalido, btnCerrarSesion, lblSidebarNota
+                lblSesion, btnCerrarSesion, lblSidebarNota
             });
 
             pnlSidebar.Controls.Add(pnlSidebarFooter);
@@ -479,7 +446,6 @@
             lblChasis.Text = "Chasis (17 caracteres)";
             txtChasis.Location = new Point(522, 54);
             txtChasis.Size = new Size(235, 25);
-            txtChasis.MaxLength = 17;
             txtChasis.PlaceholderText = "1HGCM82633A123499";
 
             lblAnio.AutoSize = true;
@@ -489,7 +455,7 @@
             lblAnio.Text = "Año";
             numAnio.Location = new Point(18, 110);
             numAnio.Size = new Size(92, 25);
-            numAnio.Minimum = 1900;
+            numAnio.Minimum = 1800;
             numAnio.Maximum = 2030;
             numAnio.Value = 2026;
 
@@ -510,7 +476,7 @@
             numPrecio.Location = new Point(278, 110);
             numPrecio.Size = new Size(140, 25);
             numPrecio.DecimalPlaces = 2;
-            numPrecio.Minimum = 1;
+            numPrecio.Minimum = 0;
             numPrecio.Maximum = 10000000;
             numPrecio.Value = 25000;
 
@@ -541,6 +507,7 @@
             pnlGridVehWrap.BackColor = Theme.Canvas;
             Theme.StyleGrid(dgvVehiculos, "dgvVehiculos");
             pnlGridVehWrap.Controls.Add(dgvVehiculos);
+            pnlGridVehWrap.Controls.Add(pagVehiculos);
 
             pnlModVehiculos.Controls.Add(pnlGridVehWrap);
             pnlModVehiculos.Controls.Add(pnlFormVehiculo);
@@ -614,6 +581,7 @@
             pnlGridCompWrap.BackColor = Theme.Canvas;
             Theme.StyleGrid(dgvCompradores, "dgvCompradores");
             pnlGridCompWrap.Controls.Add(dgvCompradores);
+            pnlGridCompWrap.Controls.Add(pagCompradores);
 
             pnlModCompradores.Controls.Add(pnlGridCompWrap);
             pnlModCompradores.Controls.Add(pnlFormComprador);
@@ -651,6 +619,7 @@
             pnlGridVenWrap.BackColor = Theme.Canvas;
             Theme.StyleGrid(dgvVentas, "dgvVentas");
             pnlGridVenWrap.Controls.Add(dgvVentas);
+            pnlGridVenWrap.Controls.Add(pagVentas);
 
             pnlModVentas.Controls.Add(pnlGridVenWrap);
             pnlModVentas.Controls.Add(pnlVentasBar);
@@ -759,13 +728,8 @@
         private Label lblPassword = null!;
         private TextBox txtPassword = null!;
         private CheckBox chkMostrarPass = null!;
-        private Label lblGateway = null!;
-        private TextBox txtGateway = null!;
-        private Label lblClientSecret = null!;
-        private TextBox txtClientSecret = null!;
         private Label lblLoginError = null!;
         private Button btnIniciarSesion = null!;
-        private Button btnTokenInvalidoLogin = null!;
         private Label lblLoginFooter = null!;
         private CoverImagePanel pnlLoginRight = null!;
         private Label lblVisualTag = null!;
@@ -789,7 +753,6 @@
         private Button btnNavVentas = null!;
         private Panel pnlSidebarFooter = null!;
         private Label lblSesion = null!;
-        private Button btnTokenInvalido = null!;
         private Button btnCerrarSesion = null!;
         private Label lblSidebarNota = null!;
 
@@ -824,6 +787,7 @@
         private Button btnLimpiarVehiculos = null!;
         private Panel pnlGridVehWrap = null!;
         private DataGridView dgvVehiculos = null!;
+        private PaginationBar pagVehiculos = null!;
 
         // Módulo Compradores
         private Panel pnlModCompradores = null!;
@@ -840,6 +804,7 @@
         private Button btnLimpiarCompradores = null!;
         private Panel pnlGridCompWrap = null!;
         private DataGridView dgvCompradores = null!;
+        private PaginationBar pagCompradores = null!;
 
         // Módulo Ventas (Solo consulta)
         private Panel pnlModVentas = null!;
@@ -849,6 +814,7 @@
         private Button btnLimpiarVentas = null!;
         private Panel pnlGridVenWrap = null!;
         private DataGridView dgvVentas = null!;
+        private PaginationBar pagVentas = null!;
 
         // Status bar
         private Panel pnlEstado = null!;

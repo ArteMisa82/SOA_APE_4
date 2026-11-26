@@ -23,6 +23,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.math.BigDecimal;
+import java.net.URI;
 import java.text.NumberFormat;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -47,9 +48,19 @@ public final class VehiculosApp extends Application {
     // Datos y detección de nuevas notificaciones
     private final ObservableList<NotificacionVenta> datosNotificaciones = FXCollections.observableArrayList();
     private final FilteredList<NotificacionVenta> datosFiltrados = new FilteredList<>(datosNotificaciones, p -> true);
+    private final ObservableList<NotificacionVenta> datosPaginaActual = FXCollections.observableArrayList();
     private final Set<String> eventosConocidos = new HashSet<>();
     private final Set<String> eventosNuevosRecientes = new HashSet<>();
     private boolean primeraCargaCompletada = false;
+
+    // Paginación en cliente
+    private int paginaActual = 1;
+    private int porPagina = 10;
+    private final Label lblPaginacionResumen = new Label("Mostrando 0 de 0 avisos");
+    private final ComboBox<Integer> cmbPorPagina = new ComboBox<>(FXCollections.observableArrayList(6, 10, 15, 25));
+    private final Button btnPagAnterior = new Button("‹ Anterior");
+    private final Label lblPagActual = new Label("Página 1 de 1");
+    private final Button btnPagSiguiente = new Button("Siguiente ›");
 
     // Controles principales
     private final TextField txtBaseUrl = new TextField(DEFAULT_BASE_URL);
@@ -243,6 +254,8 @@ public final class VehiculosApp extends Application {
         configurarTabla();
         VBox.setVgrow(tablaNotificaciones, Priority.ALWAYS);
 
+        HBox barraPaginacion = construirBarraPaginacion();
+
         // Franja oscura de inspección del evento seleccionado + botón Copiar Evento ID
         Label lblDetCap = new Label("TRAZABILIDAD DEL EVENTO SELECCIONADO");
         lblDetCap.getStyleClass().add("event-detail-label");
@@ -267,10 +280,36 @@ public final class VehiculosApp extends Application {
         detailBar.setAlignment(Pos.CENTER_LEFT);
         detailBar.getStyleClass().add("event-detail-bar");
 
-        VBox vista = new VBox(14, kpiRow, filterRow, tablaNotificaciones, detailBar);
+        VBox vista = new VBox(12, kpiRow, filterRow, tablaNotificaciones, barraPaginacion, detailBar);
         vista.getStyleClass().add("content-area");
         VBox.setVgrow(vista, Priority.ALWAYS);
         return vista;
+    }
+
+    private HBox construirBarraPaginacion() {
+        lblPaginacionResumen.getStyleClass().add("pagination-summary");
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        Label lblPorPag = new Label("Por página:");
+        lblPorPag.getStyleClass().add("pagination-label");
+
+        cmbPorPagina.setValue(porPagina);
+        cmbPorPagina.getStyleClass().add("pagination-combo");
+
+        btnPagAnterior.getStyleClass().add("btn-secondary");
+        btnPagAnterior.setDisable(true);
+
+        lblPagActual.getStyleClass().add("pagination-page-pill");
+
+        btnPagSiguiente.getStyleClass().add("btn-secondary");
+        btnPagSiguiente.setDisable(true);
+
+        HBox bar = new HBox(10, lblPaginacionResumen, spacer, lblPorPag, cmbPorPagina, btnPagAnterior, lblPagActual, btnPagSiguiente);
+        bar.setAlignment(Pos.CENTER_LEFT);
+        bar.getStyleClass().add("pagination-bar");
+        return bar;
     }
 
     private VBox construirVistaConexion() {
@@ -346,6 +385,32 @@ public final class VehiculosApp extends Application {
                         || valorSeguro(n.mensaje()).toLowerCase(Locale.ROOT).contains(q)
                         || valorSeguro(n.estado()).toLowerCase(Locale.ROOT).contains(q);
             });
+            paginaActual = 1;
+            actualizarPaginaTabla();
+        });
+
+        cmbPorPagina.setOnAction(e -> {
+            Integer seleccionado = cmbPorPagina.getValue();
+            if (seleccionado != null && seleccionado > 0) {
+                porPagina = seleccionado;
+                paginaActual = 1;
+                actualizarPaginaTabla();
+            }
+        });
+
+        btnPagAnterior.setOnAction(e -> {
+            if (paginaActual > 1) {
+                paginaActual--;
+                actualizarPaginaTabla();
+            }
+        });
+
+        btnPagSiguiente.setOnAction(e -> {
+            int totalPaginas = Math.max(1, (int) Math.ceil(datosFiltrados.size() / (double) porPagina));
+            if (paginaActual < totalPaginas) {
+                paginaActual++;
+                actualizarPaginaTabla();
+            }
         });
 
         chkAutoSondeo.setOnAction(e -> {
@@ -499,7 +564,7 @@ public final class VehiculosApp extends Application {
                 colVentaId, colVehiculoId, colCompradorId, colTipo,
                 colPrecio, colEstado, colFecha, colEventoId, colMensaje
         );
-        tablaNotificaciones.setItems(datosFiltrados);
+        tablaNotificaciones.setItems(datosPaginaActual);
         tablaNotificaciones.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
 
         // Resaltado verde suave en filas recién llegadas
@@ -524,8 +589,8 @@ public final class VehiculosApp extends Application {
             return;
         }
         String baseUrl = txtBaseUrl.getText().trim();
-        if (baseUrl.isEmpty()) {
-            mostrarErrorServicio("Configure la URL base del gateway (ej. http://127.0.0.1:8090).");
+        if (baseUrl.isEmpty() || !esUrlHttpValida(baseUrl)) {
+            mostrarErrorServicio("URL inválida: configure una URL HTTP/HTTPS válida (ej. http://127.0.0.1:8090).");
             return;
         }
 
@@ -560,6 +625,7 @@ public final class VehiculosApp extends Application {
                         primeraCargaCompletada = true;
 
                         datosNotificaciones.setAll(lista);
+                        actualizarPaginaTabla();
                         lblKpiTotal.setText(String.valueOf(lista.size()));
                         lblKpiMonto.setText(calcularMontoTotal(lista));
                         lblResumen.setText(lista.size() + (lista.size() == 1 ? " aviso" : " avisos"));
@@ -596,6 +662,45 @@ public final class VehiculosApp extends Application {
                     });
                     return null;
                 });
+    }
+
+    private void actualizarPaginaTabla() {
+        String idSeleccionadoPrevio = eventoIdSeleccionado;
+        int total = datosFiltrados.size();
+        int totalPaginas = Math.max(1, (int) Math.ceil(total / (double) Math.max(1, porPagina)));
+        paginaActual = Math.min(Math.max(1, paginaActual), totalPaginas);
+
+        if (total == 0) {
+            datosPaginaActual.clear();
+            lblPaginacionResumen.setText("Mostrando 0 de 0 avisos");
+            lblPagActual.setText("Página 1 de 1");
+            btnPagAnterior.setDisable(true);
+            btnPagSiguiente.setDisable(true);
+            if (!datosNotificaciones.isEmpty()) {
+                tablaNotificaciones.setPlaceholder(crearPlaceholder(
+                        "No hay notificaciones que coincidan con el filtro ingresado.",
+                        "#64748B", "#F8FAFC", "#CBD5E1"));
+            }
+            return;
+        }
+
+        int inicio = (paginaActual - 1) * porPagina;
+        int fin = Math.min(inicio + porPagina, total);
+        datosPaginaActual.setAll(datosFiltrados.subList(inicio, fin));
+
+        lblPaginacionResumen.setText("Mostrando " + (inicio + 1) + "–" + fin + " de " + total + " avisos");
+        lblPagActual.setText("Página " + paginaActual + " de " + totalPaginas);
+        btnPagAnterior.setDisable(paginaActual <= 1);
+        btnPagSiguiente.setDisable(paginaActual >= totalPaginas);
+
+        if (idSeleccionadoPrevio != null && !idSeleccionadoPrevio.isBlank()) {
+            for (NotificacionVenta item : datosPaginaActual) {
+                if (idSeleccionadoPrevio.equals(item.eventoId())) {
+                    tablaNotificaciones.getSelectionModel().select(item);
+                    break;
+                }
+            }
+        }
     }
 
     private void mostrarErrorServicio(String mensajeError) {
@@ -651,6 +756,18 @@ public final class VehiculosApp extends Application {
                 "-fx-border-color: " + borderHex + ";" +
                 "-fx-border-radius: 11; -fx-background-radius: 11;");
         return box;
+    }
+
+    private static boolean esUrlHttpValida(String url) {
+        if (url.length() > 200) return false;
+        try {
+            URI uri = URI.create(url);
+            String scheme = uri.getScheme();
+            return ("http".equalsIgnoreCase(scheme) || "https".equalsIgnoreCase(scheme))
+                    && uri.getHost() != null && !uri.getHost().isBlank();
+        } catch (IllegalArgumentException ex) {
+            return false;
+        }
     }
 
     private static String valorSeguro(String s) {

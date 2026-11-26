@@ -387,6 +387,46 @@
     -fx-text-fill: #0F172A;
 }
 
+/* Barra de paginación */
+.pagination-bar {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #E2E8F0;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-padding: 8 14 8 14;
+}
+
+.pagination-summary {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #64748B;
+}
+
+.pagination-label {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #334155;
+}
+
+.pagination-combo {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #CBD5E1;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-pref-width: 70;
+}
+
+.pagination-page-pill {
+    -fx-background-color: #0B0F17;
+    -fx-text-fill: #FFFFFF;
+    -fx-background-radius: 8;
+    -fx-font-size: 11.5px;
+    -fx-font-weight: bold;
+    -fx-padding: 6 12 6 12;
+}
+
 /* Barra inferior de estado */
 .status-bar {
     -fx-background-color: #FFFFFF;

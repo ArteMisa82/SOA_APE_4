@@ -13,13 +13,28 @@ namespace ConsultaVehiculosForms
         private string _kpiCompradoresTexto = "0 compradores";
         private string _kpiVentasTexto = "0 ventas";
 
+        // Caché y estado de paginación en cliente (uno por módulo)
+        private List<VehiculoDto> _vehiculosCache = new();
+        private int _paginaVeh = 1;
+        private int _porPaginaVeh = 10;
+
+        private List<CompradorDto> _compradoresCache = new();
+        private int _paginaComp = 1;
+        private int _porPaginaComp = 10;
+
+        private List<VentaDto> _ventasCache = new();
+        private int _paginaVen = 1;
+        private int _porPaginaVen = 10;
+
         public Form1()
         {
             InitializeComponent();
-            txtGateway.Text = _api.BaseUrl;
             CargarImagenesVisuales();
             WireEvents();
             CentrarTarjetaLogin();
+            pagVehiculos.UpdateState(0, 1, _porPaginaVeh, "vehículo(s)");
+            pagCompradores.UpdateState(0, 1, _porPaginaComp, "comprador(es)");
+            pagVentas.UpdateState(0, 1, _porPaginaVen, "venta(s)");
             SeleccionarModulo("vehiculos");
             MostrarPantallaLogin(true);
         }
@@ -68,14 +83,14 @@ namespace ConsultaVehiculosForms
 
             btnIniciarSesion.Click += BtnIniciarSesion_Click;
             btnCerrarSesion.Click += BtnCerrarSesion_Click;
-            btnTokenInvalidoLogin.Click += BtnTokenInvalido_Click;
-            btnTokenInvalido.Click += BtnTokenInvalido_Click;
 
             btnCrearVehiculo.Click += BtnCrearVehiculo_Click;
             btnListarVehiculos.Click += BtnListarVehiculos_Click;
             btnLimpiarVehiculos.Click += (_, _) =>
             {
-                dgvVehiculos.DataSource = null;
+                _vehiculosCache.Clear();
+                _paginaVeh = 1;
+                RenderizarPaginaVehiculos();
                 _kpiVehiculosTexto = "0 vehículos";
                 ActualizarKpiTopbar();
                 LimpiarFormularioVehiculo();
@@ -86,7 +101,9 @@ namespace ConsultaVehiculosForms
             btnListarCompradores.Click += BtnListarCompradores_Click;
             btnLimpiarCompradores.Click += (_, _) =>
             {
-                dgvCompradores.DataSource = null;
+                _compradoresCache.Clear();
+                _paginaComp = 1;
+                RenderizarPaginaCompradores();
                 _kpiCompradoresTexto = "0 compradores";
                 ActualizarKpiTopbar();
                 LimpiarFormularioComprador();
@@ -96,10 +113,48 @@ namespace ConsultaVehiculosForms
             btnListarVentas.Click += BtnListarVentas_Click;
             btnLimpiarVentas.Click += (_, _) =>
             {
-                dgvVentas.DataSource = null;
+                _ventasCache.Clear();
+                _paginaVen = 1;
+                RenderizarPaginaVentas();
                 _kpiVentasTexto = "0 ventas";
                 ActualizarKpiTopbar();
                 ActualizarEstado("Listado de ventas limpiado.", Theme.Ink700);
+            };
+
+            pagVehiculos.PageChanged += pagina =>
+            {
+                _paginaVeh = pagina;
+                RenderizarPaginaVehiculos();
+            };
+            pagVehiculos.PageSizeChanged += tam =>
+            {
+                _porPaginaVeh = tam;
+                _paginaVeh = 1;
+                RenderizarPaginaVehiculos();
+            };
+
+            pagCompradores.PageChanged += pagina =>
+            {
+                _paginaComp = pagina;
+                RenderizarPaginaCompradores();
+            };
+            pagCompradores.PageSizeChanged += tam =>
+            {
+                _porPaginaComp = tam;
+                _paginaComp = 1;
+                RenderizarPaginaCompradores();
+            };
+
+            pagVentas.PageChanged += pagina =>
+            {
+                _paginaVen = pagina;
+                RenderizarPaginaVentas();
+            };
+            pagVentas.PageSizeChanged += tam =>
+            {
+                _porPaginaVen = tam;
+                _paginaVen = 1;
+                RenderizarPaginaVentas();
             };
 
             dgvVehiculos.DataBindingComplete += (_, _) => FormatearGridVehiculos();
@@ -173,8 +228,7 @@ namespace ConsultaVehiculosForms
 
             try
             {
-                SincronizarConfigGateway();
-                var (token, status) = await _api.ObtenerTokenAsync(usuario, password, txtClientSecret.Text);
+                var (token, status) = await _api.ObtenerTokenAsync(usuario, password);
                 _jwtToken = token;
                 _usuarioActual = usuario;
                 txtPassword.Clear();
@@ -217,9 +271,15 @@ namespace ConsultaVehiculosForms
         {
             _jwtToken = string.Empty;
             _usuarioActual = string.Empty;
-            dgvVehiculos.DataSource = null;
-            dgvCompradores.DataSource = null;
-            dgvVentas.DataSource = null;
+            _vehiculosCache.Clear();
+            _compradoresCache.Clear();
+            _ventasCache.Clear();
+            _paginaVeh = 1;
+            _paginaComp = 1;
+            _paginaVen = 1;
+            RenderizarPaginaVehiculos();
+            RenderizarPaginaCompradores();
+            RenderizarPaginaVentas();
             _kpiVehiculosTexto = "0 vehículos";
             _kpiCompradoresTexto = "0 compradores";
             _kpiVentasTexto = "0 ventas";
@@ -233,17 +293,6 @@ namespace ConsultaVehiculosForms
             MostrarPantallaLogin(true);
         }
 
-        private void BtnTokenInvalido_Click(object? sender, EventArgs e)
-        {
-            _jwtToken = "jwt_invalido_prueba_error_401_no_autorizado";
-            _usuarioActual = "prueba-401";
-            lblSesion.BackColor = Color.FromArgb(78, 28, 30);
-            lblSesion.ForeColor = Color.FromArgb(254, 202, 202);
-            lblSesion.Text = "JWT inválido (prueba 401)";
-            MostrarPantallaLogin(false);
-            ActualizarEstado("Token inválido asignado en memoria. Ejecute cualquier operación para verificar HTTP 401.", Theme.WarnFg);
-        }
-
         // ==================== OPERACIONES DE VEHÍCULOS ====================
 
         private async void BtnCrearVehiculo_Click(object? sender, EventArgs e)
@@ -254,24 +303,9 @@ namespace ConsultaVehiculosForms
             var chasis = txtChasis.Text.Trim().ToUpperInvariant();
             var color = txtColor.Text.Trim();
 
-            if (string.IsNullOrWhiteSpace(marca) || string.IsNullOrWhiteSpace(modelo) ||
-                string.IsNullOrWhiteSpace(placa) || string.IsNullOrWhiteSpace(color))
-            {
-                ActualizarEstado("Validación: Complete marca, modelo, placa y color.", Theme.WarnFg);
-                MessageBox.Show("Todos los campos del vehículo son obligatorios.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            if (chasis.Length != 17)
-            {
-                ActualizarEstado("Validación: El número de chasis debe tener exactamente 17 caracteres.", Theme.WarnFg);
-                MessageBox.Show("El chasis debe tener exactamente 17 caracteres alfanuméricos.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
+            // Se delega la validación de campos al backend Spring Boot para evidenciar HTTP 422 reales en pantalla.
             await EjecutarOperacionAsync("Registrando vehículo en Spring Boot vía NGINX…", async () =>
             {
-                SincronizarConfigGateway();
                 var dto = new CrearVehiculoDto
                 {
                     Marca = marca,
@@ -287,7 +321,9 @@ namespace ConsultaVehiculosForms
                 LimpiarFormularioVehiculo();
 
                 var (lista, _) = await _api.ListarVehiculosAsync(_jwtToken);
-                dgvVehiculos.DataSource = lista;
+                _vehiculosCache = lista;
+                _paginaVeh = 1;
+                RenderizarPaginaVehiculos();
                 ActualizarKpiVehiculos(lista);
 
                 ActualizarEstado(
@@ -300,13 +336,23 @@ namespace ConsultaVehiculosForms
         {
             await EjecutarOperacionAsync("Consultando vehículos (GET /api/vehiculos vía NGINX)…", async () =>
             {
-                SincronizarConfigGateway();
                 var (autos, status) = await _api.ListarVehiculosAsync(_jwtToken);
-                dgvVehiculos.DataSource = autos;
+                _vehiculosCache = autos;
+                _paginaVeh = 1;
+                RenderizarPaginaVehiculos();
                 ActualizarKpiVehiculos(autos);
 
                 ActualizarEstado($"HTTP {status}: {autos.Count} vehículo(s) cargados desde Spring Boot vía NGINX.", Theme.AvailableFg);
             });
+        }
+
+        private void RenderizarPaginaVehiculos()
+        {
+            var totalPaginas = Math.Max(1, (int)Math.Ceiling(_vehiculosCache.Count / (double)_porPaginaVeh));
+            _paginaVeh = Math.Min(Math.Max(1, _paginaVeh), totalPaginas);
+            var pagina = _vehiculosCache.Skip((_paginaVeh - 1) * _porPaginaVeh).Take(_porPaginaVeh).ToList();
+            dgvVehiculos.DataSource = pagina.Count > 0 ? pagina : null;
+            pagVehiculos.UpdateState(_vehiculosCache.Count, _paginaVeh, _porPaginaVeh, "vehículo(s)");
         }
 
         private void ActualizarKpiVehiculos(List<VehiculoDto> autos)
@@ -326,16 +372,9 @@ namespace ConsultaVehiculosForms
             var nombre = txtNombreComp.Text.Trim();
             var correo = txtCorreoComp.Text.Trim();
 
-            if (documento.Length < 3 || nombre.Length < 2 || !correo.Contains('@'))
-            {
-                ActualizarEstado("Validación: Ingrese documento (mín. 3), nombre (mín. 2) y correo válido.", Theme.WarnFg);
-                MessageBox.Show("Verifique documento, nombre completo y correo electrónico del comprador.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
+            // Se delega la validación de campos al backend FastAPI para evidenciar HTTP 422 reales en pantalla.
             await EjecutarOperacionAsync("Registrando comprador en FastAPI vía NGINX…", async () =>
             {
-                SincronizarConfigGateway();
                 var dto = new CrearCompradorDto
                 {
                     Documento = documento,
@@ -347,7 +386,9 @@ namespace ConsultaVehiculosForms
                 LimpiarFormularioComprador();
 
                 var (lista, _) = await _api.ListarCompradoresAsync(_jwtToken);
-                dgvCompradores.DataSource = lista;
+                _compradoresCache = lista;
+                _paginaComp = 1;
+                RenderizarPaginaCompradores();
                 _kpiCompradoresTexto = $"{lista.Count} comprador(es)";
                 ActualizarKpiTopbar();
 
@@ -361,14 +402,24 @@ namespace ConsultaVehiculosForms
         {
             await EjecutarOperacionAsync("Consultando compradores (GET /api/compradores vía NGINX)…", async () =>
             {
-                SincronizarConfigGateway();
                 var (compradores, status) = await _api.ListarCompradoresAsync(_jwtToken);
-                dgvCompradores.DataSource = compradores;
+                _compradoresCache = compradores;
+                _paginaComp = 1;
+                RenderizarPaginaCompradores();
                 _kpiCompradoresTexto = $"{compradores.Count} comprador(es)";
                 ActualizarKpiTopbar();
 
                 ActualizarEstado($"HTTP {status}: {compradores.Count} comprador(es) cargados desde FastAPI vía NGINX.", Theme.AvailableFg);
             });
+        }
+
+        private void RenderizarPaginaCompradores()
+        {
+            var totalPaginas = Math.Max(1, (int)Math.Ceiling(_compradoresCache.Count / (double)_porPaginaComp));
+            _paginaComp = Math.Min(Math.Max(1, _paginaComp), totalPaginas);
+            var pagina = _compradoresCache.Skip((_paginaComp - 1) * _porPaginaComp).Take(_porPaginaComp).ToList();
+            dgvCompradores.DataSource = pagina.Count > 0 ? pagina : null;
+            pagCompradores.UpdateState(_compradoresCache.Count, _paginaComp, _porPaginaComp, "comprador(es)");
         }
 
         // ==================== CONSULTA DE VENTAS (SOLO LECTURA) ====================
@@ -377,9 +428,10 @@ namespace ConsultaVehiculosForms
         {
             await EjecutarOperacionAsync("Consultando ventas (GET /api/ventas vía NGINX)…", async () =>
             {
-                SincronizarConfigGateway();
                 var (ventas, status) = await _api.ListarVentasAsync(_jwtToken);
-                dgvVentas.DataSource = ventas;
+                _ventasCache = ventas;
+                _paginaVen = 1;
+                RenderizarPaginaVentas();
                 var comp = ventas.Count(v => v.Estado.Equals("COMPLETADA", StringComparison.OrdinalIgnoreCase));
                 _kpiVentasTexto = $"{ventas.Count} total · {comp} completadas";
                 ActualizarKpiTopbar();
@@ -388,15 +440,16 @@ namespace ConsultaVehiculosForms
             });
         }
 
-        // ==================== UTILIDADES Y MANEJO DE ERRORES ====================
-
-        private void SincronizarConfigGateway()
+        private void RenderizarPaginaVentas()
         {
-            if (!string.IsNullOrWhiteSpace(txtGateway.Text))
-            {
-                _api.BaseUrl = txtGateway.Text.Trim();
-            }
+            var totalPaginas = Math.Max(1, (int)Math.Ceiling(_ventasCache.Count / (double)_porPaginaVen));
+            _paginaVen = Math.Min(Math.Max(1, _paginaVen), totalPaginas);
+            var pagina = _ventasCache.Skip((_paginaVen - 1) * _porPaginaVen).Take(_porPaginaVen).ToList();
+            dgvVentas.DataSource = pagina.Count > 0 ? pagina : null;
+            pagVentas.UpdateState(_ventasCache.Count, _paginaVen, _porPaginaVen, "venta(s)");
         }
+
+        // ==================== UTILIDADES Y MANEJO DE ERRORES ====================
 
         private async Task EjecutarOperacionAsync(string mensajeCarga, Func<Task> accion)
         {

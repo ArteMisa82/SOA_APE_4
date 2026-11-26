@@ -25,14 +25,11 @@ namespace ConsultaVehiculosForms.Services
         private readonly JsonSerializerOptions _jsonOptions;
 
         // Puerta única de entrada REST: NGINX en puerto 8090
-        public string BaseUrl { get; set; } =
-            Environment.GetEnvironmentVariable("APE04_GATEWAY_URL") ?? "http://127.0.0.1:8090";
+        public string BaseUrl { get; set; } = "http://127.0.0.1:8090";
 
-        public string ClientId { get; set; } =
-            Environment.GetEnvironmentVariable("APE04_OAUTH_CLIENT_ID") ?? "vehiculos-client";
+        public string ClientId { get; set; } = "vehiculos-client";
 
-        public string ClientSecret { get; set; } =
-            Environment.GetEnvironmentVariable("APE04_OAUTH_CLIENT_SECRET") ?? string.Empty;
+        public string ClientSecret { get; set; } = string.Empty;
 
         public ApiClient()
         {
@@ -45,6 +42,182 @@ namespace ConsultaVehiculosForms.Services
             {
                 PropertyNameCaseInsensitive = true
             };
+
+            CargarConfiguracion();
+        }
+
+        private void CargarConfiguracion()
+        {
+            var envFile = CargarVariablesDesdeEnvLocal();
+
+            BaseUrl = ResolverValor(
+                new[] { "APE04_GATEWAY_URL", "API_BASE_URL" },
+                envFile,
+                "http://127.0.0.1:8090");
+
+            ClientId = ResolverValor(
+                new[] { "APE04_OAUTH_CLIENT_ID", "OAUTH_CLIENT_ID" },
+                envFile,
+                string.Empty);
+
+            ClientSecret = ResolverValor(
+                new[] { "APE04_OAUTH_CLIENT_SECRET", "OAUTH_CLIENT_SECRET" },
+                envFile,
+                string.Empty);
+
+            // Respaldo local en desarrollo dentro del repositorio: leer application.properties de Spring Boot (ignorado por Git)
+            if (string.IsNullOrWhiteSpace(ClientSecret) || string.IsNullOrWhiteSpace(ClientId))
+            {
+                var props = CargarPropiedadesSpringLocal();
+                if (string.IsNullOrWhiteSpace(ClientId) && props.TryGetValue("app.security.client-id", out var cid))
+                {
+                    ClientId = ResolverPlaceholderSpring(cid);
+                }
+                if (string.IsNullOrWhiteSpace(ClientSecret) && props.TryGetValue("app.security.client-secret", out var sec))
+                {
+                    var valor = ResolverPlaceholderSpring(sec);
+                    if (!valor.StartsWith("CAMBIAR_", StringComparison.OrdinalIgnoreCase))
+                    {
+                        ClientSecret = valor;
+                    }
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(ClientId))
+            {
+                ClientId = "vehiculos-client";
+            }
+        }
+
+        private static string ResolverValor(string[] claves, Dictionary<string, string> envFile, string valorPorDefecto)
+        {
+            foreach (var clave in claves)
+            {
+                var env = Environment.GetEnvironmentVariable(clave);
+                if (!string.IsNullOrWhiteSpace(env))
+                {
+                    return env.Trim();
+                }
+            }
+
+            foreach (var clave in claves)
+            {
+                if (envFile.TryGetValue(clave, out var val) && !string.IsNullOrWhiteSpace(val))
+                {
+                    return val.Trim();
+                }
+            }
+
+            return valorPorDefecto;
+        }
+
+        private static Dictionary<string, string> CargarVariablesDesdeEnvLocal()
+        {
+            var resultado = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            var rutasCandidatas = new[] { ".env.local", ".env" };
+
+            foreach (var dir in ObtenerDirectoriosAscendentes())
+            {
+                foreach (var nombre in rutasCandidatas)
+                {
+                    var archivo = Path.Combine(dir, nombre);
+                    if (!File.Exists(archivo)) continue;
+
+                    try
+                    {
+                        foreach (var lineaRaw in File.ReadAllLines(archivo))
+                        {
+                            var linea = lineaRaw.Trim();
+                            if (string.IsNullOrEmpty(linea) || linea.StartsWith('#')) continue;
+                            var idx = linea.IndexOf('=');
+                            if (idx <= 0) continue;
+
+                            var k = linea[..idx].Trim();
+                            var v = linea[(idx + 1)..].Trim().Trim('"', '\'');
+                            if (!string.IsNullOrEmpty(k) && !resultado.ContainsKey(k))
+                            {
+                                resultado[k] = v;
+                            }
+                        }
+                    }
+                    catch
+                    {
+                        // Ignorar archivos inaccesibles
+                    }
+                }
+            }
+
+            return resultado;
+        }
+
+        private static Dictionary<string, string> CargarPropiedadesSpringLocal()
+        {
+            var resultado = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var dir in ObtenerDirectoriosAscendentes())
+            {
+                var archivo = Path.Combine(dir, "venta-vehiculos-api_security", "src", "main", "resources", "application.properties");
+                if (!File.Exists(archivo)) continue;
+
+                try
+                {
+                    foreach (var lineaRaw in File.ReadAllLines(archivo))
+                    {
+                        var linea = lineaRaw.Trim();
+                        if (string.IsNullOrEmpty(linea) || linea.StartsWith('#')) continue;
+                        var idx = linea.IndexOf('=');
+                        if (idx <= 0) continue;
+
+                        var k = linea[..idx].Trim();
+                        var v = linea[(idx + 1)..].Trim();
+                        if (!string.IsNullOrEmpty(k))
+                        {
+                            resultado[k] = v;
+                        }
+                    }
+                    break;
+                }
+                catch
+                {
+                    // Ignorar si no es accesible
+                }
+            }
+
+            return resultado;
+        }
+
+        private static IEnumerable<string> ObtenerDirectoriosAscendentes()
+        {
+            var visitados = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var iniciales = new[] { Directory.GetCurrentDirectory(), AppContext.BaseDirectory };
+
+            foreach (var inicio in iniciales)
+            {
+                var actual = new DirectoryInfo(inicio);
+                for (int i = 0; i < 6 && actual != null; i++)
+                {
+                    if (visitados.Add(actual.FullName))
+                    {
+                        yield return actual.FullName;
+                    }
+                    actual = actual.Parent;
+                }
+            }
+        }
+
+        private static string ResolverPlaceholderSpring(string valor)
+        {
+            var limpio = valor.Trim();
+            if (limpio.StartsWith("${") && limpio.EndsWith("}"))
+            {
+                var interno = limpio[2..^1];
+                var sep = interno.IndexOf(':');
+                var varNombre = sep >= 0 ? interno[..sep].Trim() : interno.Trim();
+                var defecto = sep >= 0 ? interno[(sep + 1)..].Trim() : string.Empty;
+                var env = Environment.GetEnvironmentVariable(varNombre);
+                return !string.IsNullOrWhiteSpace(env) ? env.Trim() : defecto;
+            }
+            return limpio;
         }
 
         /// <summary>
@@ -60,7 +233,7 @@ namespace ConsultaVehiculosForms.Services
             if (string.IsNullOrWhiteSpace(secret))
             {
                 throw new InvalidOperationException(
-                    "Defina la variable de entorno APE04_OAUTH_CLIENT_SECRET o ingrese el Client Secret en el formulario.");
+                    "No se encontró OAUTH_CLIENT_SECRET. Defina la variable de entorno APE04_OAUTH_CLIENT_SECRET o configure un archivo local .env.");
             }
 
             var url = $"{BaseUrl.TrimEnd('/')}/oauth/token";

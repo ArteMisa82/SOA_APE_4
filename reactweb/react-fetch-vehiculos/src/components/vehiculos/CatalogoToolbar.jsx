@@ -20,6 +20,7 @@ export default function CatalogoToolbar({
         <input
           id="filtroMarca"
           type="search"
+          maxLength={60}
           aria-label="Buscar vehículo por marca, modelo o placa"
           placeholder="Buscar por marca, modelo o placa (Toyota, Mazda, Chevrolet, etc.)…"
           value={marca}

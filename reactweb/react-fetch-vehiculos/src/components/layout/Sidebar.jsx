@@ -1,4 +1,4 @@
-import { Car, LayoutDashboard, LogOut, Receipt, ShieldAlert, Wifi, WifiOff } from 'lucide-react';
+import { Car, LayoutDashboard, LogOut, Receipt, Wifi, WifiOff } from 'lucide-react';
 import nexoraLogo from '../../assets/nexora-logo.png';
 import './Layout.css';
 
@@ -13,7 +13,6 @@ export default function Sidebar({
   cargando,
   menuMovilAbierto,
   onNavegar,
-  onSimularTokenInvalido,
   onCerrarSesion,
   onCerrarMenuMovil,
 }) {
@@ -103,21 +102,12 @@ export default function Sidebar({
           <div className="sidebar-actions">
             <button
               type="button"
-              className="btn-dark-danger"
-              disabled={cargando}
-              onClick={onSimularTokenInvalido}
-              title="Probar token inválido contra los endpoints"
-            >
-              <ShieldAlert size={14} /> Test 401
-            </button>
-            <button
-              type="button"
               className="btn-dark-ghost"
               disabled={cargando}
               onClick={onCerrarSesion}
               title="Cerrar sesión y limpiar token"
             >
-              <LogOut size={14} /> Salir
+              <LogOut size={14} /> Cerrar sesión
             </button>
           </div>
         </div>

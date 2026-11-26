@@ -115,3 +115,30 @@ mvn spring-boot:run
   cd escritorioFX\consultarvehiculojavafx
   mvn javafx:run
   ```
+
+## Arranque y Control Rápido de Servicios (`servicios.ps1` / `servicios.cmd`)
+
+Para levantar todos los servicios o detener/reiniciar uno individual durante pruebas de tolerancia a fallos (sin guardar secretos en Git):
+
+```powershell
+# Ver estado (UP/DOWN y PID) de todos los servicios
+.\servicios.cmd status
+
+# Iniciar stack principal (RabbitMQ, API 8080/8082, NGINX, FastAPI, Notificaciones, Monitor, PWA y React)
+.\servicios.cmd start
+
+# Iniciar todo incluyendo clientes de escritorio (WinForms y JavaFX)
+.\servicios.cmd start todo
+
+# Menú interactivo (ideal para demostración en vivo)
+.\servicios.cmd menu
+
+# Bajar o volver a subir un servicio puntual
+.\servicios.cmd stop api-8080
+.\servicios.cmd start api-8080
+.\servicios.cmd stop notificaciones
+.\servicios.cmd restart ventas
+
+# Apagar todos los servicios
+.\servicios.cmd stop all
+```

@@ -1,5 +1,5 @@
 ﻿import { useEffect, useMemo, useState } from 'react';
-import { AlertTriangle, CheckCircle2, Info, ShieldAlert } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Info } from 'lucide-react';
 import { iniciarSesionWeb, listarVehiculos, listarVentas } from './Api/vehiculosApi.js';
 import LoginScreen from './components/login/LoginScreen.jsx';
 import Sidebar from './components/layout/Sidebar.jsx';
@@ -172,23 +172,6 @@ export default function App() {
     setCargando(false);
   }
 
-  async function simularTokenInvalido() {
-    const fakeJwt = 'jwt_invalido_react_prueba_401';
-    setToken(fakeJwt);
-    setUsuarioActivo('prueba-401');
-    setExpiraSeg(null);
-    setErrorAuth('');
-    setCargando(true);
-    setMenuMovilAbierto(false);
-    setMensaje('Validando rechazo con JWT inválido (esperando HTTP 401)…');
-    await Promise.all([
-      cargarVehiculosInterno(fakeJwt),
-      cargarVentasInterno(fakeJwt),
-    ]);
-    setMensaje('Prueba HTTP 401 completada: el backend rechazó el token inválido.');
-    setCargando(false);
-  }
-
   function cerrarSesion() {
     setToken('');
     setUsuarioActivo('');
@@ -324,7 +307,6 @@ export default function App() {
         onChangePassword={setPassword}
         onTogglePassword={() => setMostrarPassword((v) => !v)}
         onSubmit={manejarLogin}
-        onSimularTokenInvalido={simularTokenInvalido}
       />
     );
   }
@@ -332,16 +314,13 @@ export default function App() {
   // ==================== PANTALLA 2: CONTROL PANEL AUTENTICADO ====================
   const hayFiltroVeh = marca.trim().length > 0 || filtroEstado !== 'TODOS';
   const hayFiltroVen = busquedaVenta.trim().length > 0 || filtroEstadoVenta !== 'TODAS';
-  const esPrueba401 = usuarioActivo === 'prueba-401';
   const tieneError = Boolean(errorVeh || errorVen);
 
   const claseBanner = tieneError
     ? 'http-banner http-banner-error'
-    : esPrueba401
-      ? 'http-banner http-banner-warn'
-      : codigoHttp && codigoHttp >= 200 && codigoHttp < 300
-        ? 'http-banner http-banner-ok'
-        : 'http-banner http-banner-neutral';
+    : codigoHttp && codigoHttp >= 200 && codigoHttp < 300
+      ? 'http-banner http-banner-ok'
+      : 'http-banner http-banner-neutral';
 
   const tituloSeccion =
     seccion === 'dashboard'
@@ -375,7 +354,6 @@ export default function App() {
         cargando={cargando}
         menuMovilAbierto={menuMovilAbierto}
         onNavegar={navegarA}
-        onSimularTokenInvalido={simularTokenInvalido}
         onCerrarSesion={cerrarSesion}
         onCerrarMenuMovil={() => setMenuMovilAbierto(false)}
       />
@@ -396,8 +374,6 @@ export default function App() {
               <span className="http-banner-left">
                 {tieneError ? (
                   <AlertTriangle size={18} />
-                ) : esPrueba401 ? (
-                  <ShieldAlert size={18} />
                 ) : (
                   <CheckCircle2 size={18} />
                 )}
